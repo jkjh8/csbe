@@ -41,6 +41,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    tts: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    number_of_login: {
+      type: DataTypes.BIGINT,
+      defaultValue: 0
+    },
     loginAt: {
       type: DataTypes.DATE
     }
