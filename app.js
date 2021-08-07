@@ -4,8 +4,8 @@ const port = 3000
 const cors = require('cors')
 
 //DB model sync
-const sequelize = require('./models').sequelize
-sequelize.sync()
+// const sequelize = require('./models').sequelize
+// sequelize.sync()
 
 app.use(cors())
 app.use(require('morgan')('dev')) //debuger
