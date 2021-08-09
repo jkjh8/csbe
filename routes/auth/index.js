@@ -16,7 +16,6 @@ dotenv.config({ path: path.join(__dirname, '../../.env') })
 
 router.post('/register', function (req, res) {
   const user = req.body
-  if (!user.user_id) { user.user_id = user.email }
   dbUsers.findOne({
     where: { user_id: user.user_id }
   }).then((result) => {
