@@ -37,4 +37,13 @@ router.post('/register', function (req, res) {
   })
 })
 
+router.post('/login', function(req, res) {
+  passport.authenticate('local', {
+    session: false
+  }, (err, user, info) => {
+    console.log(err, user, info)
+    return res.status(200).json({ user: user })
+  }) (req, res)
+})
+
 module.exports = router

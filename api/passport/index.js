@@ -23,7 +23,7 @@ const getRefreshToken = function (req) {
   return null
 }
 
-const localOption = { usernameField: 'user_id', passowrdField: 'password' }
+const localOption = { usernameField: 'user_id', passwordField: 'password' }
 const jwtOption = { jwtFromRequest: getAccessToken, secretOrKey: process.env.JWT_SECRET }
 const jwtRefOption = { jwtFromRequest: getRefreshToken, secretOrKey: process.env.JWT_SECRET }
 
@@ -36,7 +36,7 @@ function localVerify(id, password, done) {
       return done(null, false, { message: '사용자를 찾을 수 없습니다.' })
     }
     if (bcrypt.compareSync(password, user.password)) {
-      delete user[passowrd]
+      delete user[password]
       return done(null, user)
     } else {
       return done(null, false, { message: '패스워드가 일치하지 않습니다.'})
