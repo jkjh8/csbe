@@ -4,7 +4,8 @@
     "password": "password",
     "database": "media",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "define": { "charset": "utf8", "collate": "utf8_general_ci" }
   },
   "test": {
     "username": "root",

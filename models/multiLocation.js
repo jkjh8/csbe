@@ -36,5 +36,9 @@ module.exports = (sequelize, DataTypes) => {
     relay: {
       type: DataTypes.BOOLEAN
     }
+  }, {
+    charset: 'utf8',
+    collate: 'utf8_unicode_ci',
+    underscored: true
   })
 }

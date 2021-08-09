@@ -25,5 +25,9 @@ module.exports = (sequelize, DataTypes) => {
     message: {
       type: DataTypes.STRING(512)
     }
+  }, {
+    charset: 'utf8',
+    collate: 'utf8_unicode_ci',
+    underscored: true
   })
 }
