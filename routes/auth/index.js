@@ -7,6 +7,8 @@ const dotenv = require('dotenv')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const moment = require('moment')
+
+const makeToken = require('../../api/users/makeToken')
 const dbUsers = require('../../models').Users
 
 const bcrypt = require('bcrypt')
@@ -41,9 +43,49 @@ router.post('/login', function(req, res) {
   passport.authenticate('local', {
     session: false
   }, (err, user, info) => {
-    console.log(err, user, info)
-    return res.status(200).json({ user: user })
+    if (err) {
+      return res.status(403).json({ user: false, message: err })
+    }
+
+    dbUsers.update({ number_of_login:user.number_of_login + 1, loginAt: moment() }, { where: { user_id: user.user_id } }).then(result => {
+      const token = makeToken({ name: user.name, user_id: user.user_id, email: user.email})
+      //Send Accesstoken
+      res.cookie('accessToken', token.accessToken, { httpOnly: true })
+      //Refresh token
+      if (req.body.keepLoggedin) {
+        res.cookie('refreshToken', token.refreshToken, { httpOnly: true })
+      }
+
+      return res.status(200).json({ user: user }).end()
+    }).catch(err => {
+      return res.status(500).json({ user: false, message: err})
+    })
   }) (req, res)
+})
+
+router.get('/getUser', function (req, res) {
+  passport.authenticate('access', { session: false }, function (err, user, info) {
+    console.log(err)
+    if (err) {
+      return res.status(403).json({
+        user: null,
+        message: '사용자가 존재하지 않습니다.'
+      })
+    }
+    res.status(200).json({
+      user: user,
+      info: info
+    })
+  }) (req, res)
+})
+
+router.get('/logout', function (req, res) {
+  res.clearCookie('accessToken', 'refreshToken')
+  req.logout()
+  return res.status(200).json({
+    user: null,
+    message: 'Logout complate'
+  })
 })
 
 module.exports = router

@@ -11,9 +11,13 @@ const dbUsers = require('../../models').Users
 
 const getAccessToken = function (req) {
   if (req && req.cookies && req.cookies['accessToken']) {
-    return req.cookies['accessToken']
+    console.log('getToken')
+    const token = req.cookies['accessToken']
+    return token
+  } else {
+    console.log('can not get token')
+    return null
   }
-  return null
 }
 
 const getRefreshToken = function (req) {
@@ -31,6 +35,7 @@ function localVerify(id, password, done) {
   dbUsers.findOne({
     where: { user_id: id },
     attributes: { exclude: ['_id'] }
+    
   }).then((user) => {
     if (!user) {
       return done(null, false, { message: '사용자를 찾을 수 없습니다.' })
@@ -48,7 +53,7 @@ function localVerify(id, password, done) {
 
 function jwtVerify(payload, done) {
   dbUsers.findOne({
-    where: { user_id: payload.id },
+    where: { user_id: payload.user_id },
     attributes: { exclude: ['_id', 'password'] }
   }).then((user) => {
     if (!user) {
