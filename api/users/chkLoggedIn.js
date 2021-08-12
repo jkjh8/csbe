@@ -9,8 +9,7 @@ module.exports.isLoggedIn = (req, res, next) => {
     } else {
       res.status(401).json({
         user: null,
-        status: false,
-        info: '로그인 되지 않았습니다.'
+        message: '로그인 되지 않았습니다.'
       })
     }
   })(req, res, next)

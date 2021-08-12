@@ -72,10 +72,11 @@ router.get('/getUser', function (req, res) {
         message: '사용자가 존재하지 않습니다.'
       })
     }
-    res.status(200).json({
-      user: user,
-      info: info
-    })
+    if (user) {
+      const token = makeToken({ name: user.name, user_id: user.user_id, email: user.email })
+      res.cookie('accessToken', token.accessToken, { httpOnly: true })
+    }
+    res.status(200).json({ user: user, info: info }).end()
   }) (req, res)
 })
 
