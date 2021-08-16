@@ -8,19 +8,19 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
     user_id: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING(128),
       allowNull: true,
     },
     from: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING(128),
       allowNull: true
     },
     type: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING(40),
       allowNull: true
     },
     message: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.TEXT,
       allowNull: true
     },
     link: {

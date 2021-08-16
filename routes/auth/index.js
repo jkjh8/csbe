@@ -28,7 +28,7 @@ router.post('/register', function (req, res) {
 
   bcrypt.hash(user.password, saltRounds, function(err, hash) {
     if (err) {
-      res.status(500).json({ result: err, message: '비밀번호 암호화 에러' }) 
+      res.status(500).json({ result: err, message: '비밀번호 암호화 에러' })
     }
     user.password = hash
     dbUsers.create(user).then((result) => {
@@ -54,6 +54,8 @@ router.post('/login', function(req, res) {
       //Refresh token
       if (req.body.keepLoggedin) {
         res.cookie('refreshToken', token.refreshToken, { httpOnly: true })
+      } else {
+        res.clearCookie('refreshToken')
       }
 
       return res.status(200).json({ user: user }).end()
@@ -65,7 +67,22 @@ router.post('/login', function(req, res) {
 
 router.get('/getUser', function (req, res) {
   passport.authenticate('access', { session: false }, function (err, user, info) {
-    console.log(err)
+    if (err) {
+      return res.status(403).json({
+        user: null,
+        message: '사용자가 존재하지 않습니다.'
+      })
+    }
+    if (user) {
+      const token = makeToken({ name: user.name, user_id: user.user_id, email: user.email })
+      res.cookie('accessToken', token.accessToken, { httpOnly: true })
+    }
+    res.status(200).json({ user: user, info: info }).end()
+  }) (req, res)
+})
+
+router.get('/refUser', function(req, res) {
+  passport.authenticate('refresh', { session: false }, (err, user, info) => {
     if (err) {
       return res.status(403).json({
         user: null,
@@ -81,7 +98,8 @@ router.get('/getUser', function (req, res) {
 })
 
 router.get('/logout', function (req, res) {
-  res.clearCookie('accessToken', 'refreshToken')
+  res.clearCookie('accessToken')
+  res.clearCookie('refreshToken')
   req.logout()
   return res.status(200).json({
     user: null,

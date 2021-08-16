@@ -35,11 +35,11 @@ app.use('/', require('./routes'))
 
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
-  // require('./models').Logs.create({
-  //   source: '메인서버',
-  //   category: 'info',
-  //   priority: 'low',
-  //   zones: '본사',
-  //   message: '웹서버가 재부팅 되었습니다.'
-  // })
+  require('./models').Logs.create({
+    source: '메인서버',
+    category: 'info',
+    priority: 'low',
+    zones: '본사',
+    message: '웹서버가 재부팅 되었습니다.'
+  })
 })

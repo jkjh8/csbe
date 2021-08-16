@@ -4,13 +4,18 @@ const dbLogs = require('../../models').Logs
 
 router.get('/', (req, res) => {
   const { limit, page, serarch, location } = req.query
-  dbLogs.findAll({
+  const offset = limit * page - 1
+  dbLogs.findAndCountAll({
     limit: limit ?? 10,
-    offset: page ?? 1
+    offset: page ?? 0,
+    order: [
+      ['createdAt', 'DESC']
+    ]
   }).then((result) => {
+    console.log(result)
     res.status(200).json({
       logsPerPage: limit ?? 10,
-      page: page ?? 1,
+      page: page ?? 0,
       data: result
     })
   }).catch((err) => {
