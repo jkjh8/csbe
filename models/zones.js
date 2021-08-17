@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('Mlocation', {
+  return sequelize.define('zones', {
     _id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -11,10 +11,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true
-    },
-    parent: {
-      type: DataTypes.STRING,
-      allowNull: false,
     },
     name: {
       type: DataTypes.STRING(255),
@@ -35,6 +31,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     relay: {
       type: DataTypes.BOOLEAN
+    },
+    data: {
+      type: DataTypes.JSON
+    },
+    location: {
+      type: DataTypes.STRING
     }
   }, {
     charset: 'utf8',

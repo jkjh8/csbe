@@ -36,7 +36,7 @@ app.use('/', require('./routes'))
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
   require('./models').Logs.create({
-    source: '메인서버',
+    source: '한강본부',
     category: 'info',
     priority: 'low',
     zones: '본사',

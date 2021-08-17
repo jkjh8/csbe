@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('Location', {
+  return sequelize.define('Barix', {
     _id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -8,29 +8,36 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
     index: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
+    },
+    mac: {
+      type: DataTypes.STRING,
       allowNull: false,
       unique: true
     },
     name: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
     },
-    type: {
-      type: DataTypes.STRING(16),
-      allowNull: false,
-      defaultValue: 'single'
-    },
-    vol: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    mute: {
+    alarm: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
-    relay: {
-      type: DataTypes.BOOLEAN
+    info: {
+      type: DataTypes.JSON
+    },
+    zones: {
+      type: DataTypes.STRING
+    },
+    location: {
+      type: DataTypes.STRING
+    },
+    data: {
+      type: DataTypes.JSON
+    },
+    checked: {
+      type: DataTypes.BOOLEAN,
+      default: false
     }
   }, {
     charset: 'utf8',
