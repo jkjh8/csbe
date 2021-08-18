@@ -1,5 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define('Barix', {
+    //id
     _id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -8,32 +9,74 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
     index: {
-      type: DataTypes.INTEGER
-    },
-    mac: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: DataTypes.INTEGER,
       unique: true
     },
     name: {
       type: DataTypes.STRING(255),
       allowNull: true,
     },
+    // device info
+    mac: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
     alarm: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
-    info: {
-      type: DataTypes.JSON
+    buffer: {
+      type: DataTypes.INTEGER
     },
+    latency: {
+      type: DataTypes.INTEGER
+    },
+    frameloss: {
+      type: DataTypes.INTEGER
+    },
+    framedup: {
+      type: DataTypes.INTEGER
+    },
+    framedrop: {
+      type: DataTypes.INTEGER
+    },
+    softerrorcount: {
+      type: DataTypes.INTEGER
+    },
+    streamnumber: {
+      type: DataTypes.INTEGER
+    },
+    bitrate: {
+      type: DataTypes.INTEGER
+    },
+    reconnects: {
+      type: DataTypes.INTEGER
+    },
+    error: {
+      type: DataTypes.INTEGER
+    },
+    volume: {
+      type: DataTypes.INTEGER
+    },
+    uptime: {
+      type: DataTypes.BIGINT
+    },
+    ipaddress: {
+      type: DataTypes.STRING
+    },
+    streamurl: {
+      type: DataTypes.STRING
+    },
+    // additional info
     zones: {
       type: DataTypes.STRING
     },
-    location: {
+    location1: {
       type: DataTypes.STRING
     },
-    data: {
-      type: DataTypes.JSON
+    location2: {
+      type: DataTypes.STRING
     },
     checked: {
       type: DataTypes.BOOLEAN,

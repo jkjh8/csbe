@@ -1,13 +1,13 @@
 const path = require('path')
 const express = require('express')
 const app = express()
+const http = require('http')
 const port = 3000
 
 //load modules
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const passport = require('passport')
-const { callbackify } = require('util')
 
 //DB model sync
 // const sequelize = require('./models').sequelize
@@ -33,7 +33,22 @@ app.use(express.static(path.join(__dirname, 'public')))
 //load router
 app.use('/', require('./routes'))
 
-app.listen(port, () => {
+
+//socket io
+const server = http.createServer(app)
+global.io = require('socket.io') (server, {
+  cors: {
+    origin: "http://localhost:8080",
+    methods: ["GET", "POST"]
+  }
+})
+
+io.on('connection', (socket) => {
+  console.log('connected! ')
+})
+
+
+server.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
   require('./models').Logs.create({
     source: '한강본부',
@@ -43,3 +58,5 @@ app.listen(port, () => {
     message: '웹서버가 재부팅 되었습니다.'
   })
 })
+
+require('./interval/barix')

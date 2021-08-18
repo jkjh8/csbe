@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('Location', {
+  return sequelize.define('Location1', {
     _id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -15,14 +15,6 @@ module.exports = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING(255),
       allowNull: false,
-    },
-    type: {
-      type: DataTypes.STRING(16),
-      allowNull: false,
-      defaultValue: 'single'
-    },
-    data: {
-      type: DataTypes.JSON
     }
   }, {
     charset: 'utf8',

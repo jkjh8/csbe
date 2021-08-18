@@ -7,6 +7,6 @@ router.get('/', (req, res, next) => {
 
 router.use('/auth', require('./auth'))
 router.use('/eventlog', require('./eventlog'))
-router.use('/sensors/data', require('./barix'))
+router.use('/sensors', require('./barix'))
 
 module.exports = router
