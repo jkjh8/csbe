@@ -4,7 +4,7 @@ const dbLogs = require('../../models').Logs
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
 
-router.post('/get', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { limit, page, search } = req.body
     console.log(req.body)

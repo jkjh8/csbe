@@ -10,8 +10,8 @@ const cookieParser = require('cookie-parser')
 const passport = require('passport')
 
 //DB model sync
-const sequelize = require('./models').sequelize
-sequelize.sync()
+// const sequelize = require('./models').sequelize
+// sequelize.sync()
 
 require('./api/passport')()
 

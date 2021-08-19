@@ -8,5 +8,6 @@ router.get('/', (req, res, next) => {
 router.use('/auth', require('./auth'))
 router.use('/eventlog', require('./eventlog'))
 router.use('/sensors', require('./barix'))
+router.use('/locations', require('./locations'))
 
 module.exports = router

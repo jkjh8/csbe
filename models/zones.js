@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('zones', {
+  return sequelize.define('Zones', {
     _id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
