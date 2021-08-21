@@ -27,6 +27,18 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.BOOLEAN
+    },
+    mode: {
+      type: DataTypes.STRING
+    },
+    parent: {
+      type: DataTypes.STRING
+    },
+    channel: {
+      type: DataTypes.INTEGER
+    },
+    info: { 
+      type: DataTypes.JSON
     }
   }, {
     charset: 'utf8',

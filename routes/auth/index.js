@@ -40,12 +40,12 @@ router.post('/register', function (req, res) {
 })
 
 router.post('/login', function(req, res) {
+  console.log(req.body)
   passport.authenticate('local', {
     session: false
   }, (err, user, info) => {
-    if (err) {
-      return res.status(403).json({ user: false, message: err })
-    }
+    if (err) return res.status(403).json({ error: err })
+    if (!user) return res.status(403).json(info)
 
     dbUsers.update({ number_of_login:user.number_of_login + 1, loginAt: moment() }, { where: { user_id: user.user_id } }).then(result => {
       const token = makeToken({ name: user.name, user_id: user.user_id, email: user.email})
@@ -60,6 +60,7 @@ router.post('/login', function(req, res) {
 
       return res.status(200).json({ user: user }).end()
     }).catch(err => {
+      console.log(err.message)
       return res.status(500).json({ user: false, message: err})
     })
   }) (req, res)

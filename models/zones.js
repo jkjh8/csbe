@@ -40,6 +40,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.BOOLEAN
+    },
+    info: {
+      type: DataTypes.JSON
     }
   }, {
     charset: 'utf8',

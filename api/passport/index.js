@@ -37,9 +37,8 @@ function localVerify(id, password, done) {
     attributes: { exclude: ['_id'] }
     
   }).then((user) => {
-    if (!user) {
-      return done(null, false, { message: '사용자를 찾을 수 없습니다.' })
-    }
+    console.log(user)
+    if (!user) return done(null, false, { message: '사용자를 찾을 수 없습니다.' })
     if (bcrypt.compareSync(password, user.password)) {
       delete user[password]
       return done(null, user)
@@ -47,7 +46,7 @@ function localVerify(id, password, done) {
       return done(null, false, { message: '패스워드가 일치하지 않습니다.'})
     }
   }).catch((err) => {
-    return done(err)
+    return done(null, false, { message: '알 수 없는 오류가 발생하였습니다.'})
   })
 }
 

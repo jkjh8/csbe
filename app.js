@@ -59,4 +59,4 @@ server.listen(port, () => {
   })
 })
 
-require('./interval/barix')
+// require('./interval/barix')
