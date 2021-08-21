@@ -37,6 +37,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     location: {
       type: DataTypes.STRING
+    },
+    status: {
+      type: DataTypes.BOOLEAN
     }
   }, {
     charset: 'utf8',

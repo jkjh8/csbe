@@ -24,6 +24,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     port: {
       type: DataTypes.BIGINT
+    },
+    status: {
+      type: DataTypes.BOOLEAN
     }
   }, {
     charset: 'utf8',
