@@ -16,10 +16,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    type: {
+    mode: {
       type: DataTypes.STRING(16),
       allowNull: false,
-      defaultValue: 'single'
+      defaultValue: 'Barix'
     },
     vol: {
       type: DataTypes.INTEGER,
@@ -32,14 +32,17 @@ module.exports = (sequelize, DataTypes) => {
     relay: {
       type: DataTypes.BOOLEAN
     },
-    data: {
-      type: DataTypes.JSON
-    },
     location: {
       type: DataTypes.STRING
     },
+    channel: {
+      type: DataTypes.INTEGER
+    },
     status: {
       type: DataTypes.BOOLEAN
+    },
+    mac: {
+      type: DataTypes.STRING
     },
     info: {
       type: DataTypes.JSON

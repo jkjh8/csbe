@@ -69,13 +69,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     // additional info
-    zones: {
-      type: DataTypes.STRING
-    },
-    location1: {
-      type: DataTypes.STRING
-    },
-    location2: {
+    description: {
       type: DataTypes.STRING
     },
     checked: {

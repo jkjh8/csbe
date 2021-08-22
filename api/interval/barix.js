@@ -1,4 +1,4 @@
-const dbBarix = require('../models').Barix
+const dbBarix = require('../../models').Barix
 
 setInterval(async () => {
   const r = await dbBarix.findAndCountAll()

@@ -1,12 +1,17 @@
 const express = require('express')
 const router = express.Router()
-const Locations = require('../../models').Locations
+const Zones = require('../../models').Zones
+const Barix = require('../../models').Barix
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
 
+Zones.hasOne(Barix, { foreignKey: 'mac', sourceKey: 'mac' })
+
 router.get('/', async (req, res) => {
+  const { location } = req.query
   try {
-    const r = await Locations.findAndCountAll()    
+    const r = await Zones.findAll({
+      include: [Barix] })    
     return res.status(200).json({ data: r })
   } catch (err) {
     console.log(err)
@@ -16,12 +21,11 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    if (!req.body.port) return res.status(500).json({ message: 'Port를 확인해주세요.' })
-    let r = await Locations.findOne({ where: { index: req.body.index } })
+    let r = await Zones.findOne({ where: { index: req.body.index } })
     if (r) return res.status(500).json({ message: 'Index가 중복 되었습니다.'})
-    r = await Locations.findOne({ where: { name: req.body.name } })
+    r = await Zones.findOne({ where: { name: req.body.name } })
     if (r) return res.status(500).json({ message: '이름이 중복되었습니다.'})
-    r = await Locations.create(req.body)
+    r = await Zones.create(req.body)
     res.status(200).json(r)
   } catch (err) {
     console.log(err)
@@ -31,11 +35,11 @@ router.post('/', async (req, res) => {
 
 router.put('/', async (req, res) => {
   try {
-    let r = await Locations.findOne({ where: { index: req.body.index } })
+    let r = await Zones.findOne({ where: { index: req.body.index } })
     if (r && r._id !== req.body._id) return res.status(500).json({ message: 'Index가 중복되었습니다.' })
-    r = await Locations.findOne({ where: { name: req.body.name } })
+    r = await Zones.findOne({ where: { name: req.body.name } })
     if (r && r._id !== req.body._id) return res.status(500).json({ message: '이름이 중복되었습니다.'})
-    r = await Locations.update(req.body, { where: { _id: req.body._id } })
+    r = await Zones.update(req.body, { where: { _id: req.body._id } })
     res.status(200).json(r)
   } catch (err) {
     console.log(err)
@@ -46,7 +50,7 @@ router.put('/', async (req, res) => {
 router.post('/delete', async (req, res) => {
   console.log(req.body)
   try {
-    let r = await Locations.destroy({ where: { _id: req.body._id } })
+    let r = await Zones.destroy({ where: { _id: req.body._id } })
     res.status(200).json(r)
   } catch (err) {
     console.log(err)
