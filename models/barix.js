@@ -75,6 +75,10 @@ module.exports = (sequelize, DataTypes) => {
     checked: {
       type: DataTypes.BOOLEAN,
       default: false
+    },
+    status: {
+      type: DataTypes.BOOLEAN,
+      default: false
     }
   }, {
     charset: 'utf8',
