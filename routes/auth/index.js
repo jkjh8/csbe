@@ -40,10 +40,10 @@ router.post('/register', function (req, res) {
 })
 
 router.post('/login', function(req, res) {
-  console.log(req.body)
   passport.authenticate('local', {
     session: false
   }, (err, user, info) => {
+    console.log('User', user)
     if (err) return res.status(403).json({ error: err })
     if (!user) return res.status(403).json(info)
 

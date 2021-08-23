@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define('Users', {
-    _id: {
+    id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
@@ -41,6 +41,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    auth: {
+      type: DataTypes.JSON
+    },
     tts: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
@@ -52,5 +55,9 @@ module.exports = (sequelize, DataTypes) => {
     loginAt: {
       type: DataTypes.DATE
     }
+  }, {
+    charset: 'utf8',
+    collate: 'utf8_unicode_ci',
+    underscored: true
   })
 }
