@@ -5,8 +5,6 @@ const Barix = require('../../models').Barix
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
 
-Zones.hasOne(Barix, { foreignKey: 'mac', sourceKey: 'mac' })
-
 router.get('/', async (req, res) => {
   const { location } = req.query
   try {

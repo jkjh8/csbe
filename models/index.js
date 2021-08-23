@@ -35,4 +35,6 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+db.Zones.hasOne(db.Barix, { foreignKey: 'mac', sourceKey: 'mac' })
+
 module.exports = db;
