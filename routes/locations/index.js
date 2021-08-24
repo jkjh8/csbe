@@ -19,7 +19,8 @@ router.post('/', async (req, res) => {
     if (r) return res.status(500).json({ message: 'Index가 중복 되었습니다.'})
     r = await Locations.findOne({ where: { name: req.body.name } })
     if (r) return res.status(500).json({ message: '이름이 중복되었습니다.'})
-    r = await Locations.create(req.body)
+    const c = new Locations(req.body)
+    r = await c.save
     res.status(200).json(r)
   } catch (err) {
     console.log(err)
@@ -33,7 +34,7 @@ router.put('/', async (req, res) => {
     if (r && r._id !== req.body._id) return res.status(500).json({ message: 'Index가 중복되었습니다.' })
     r = await Locations.findOne({ where: { name: req.body.name } })
     if (r && r._id !== req.body._id) return res.status(500).json({ message: '이름이 중복되었습니다.'})
-    r = await Locations.update(req.body, { where: { _id: req.body._id } })
+    r = await Locations.updateOne({ _id: req.body._id }, { $set: req.body } )
     res.status(200).json(r)
   } catch (err) {
     console.log(err)
