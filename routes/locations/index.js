@@ -4,7 +4,7 @@ const Locations = require('../../models/location')
 
 router.get('/', async (req, res) => {
   try {
-    const r = await Locations.findAndCountAll()    
+    const r = await Locations.find({})    
     return res.status(200).json({ data: r })
   } catch (err) {
     console.log(err)

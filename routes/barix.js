@@ -67,7 +67,7 @@ router.get('/data/submit', async function (req, res) {
 
 router.get('/get', async function (req, res) {
   try {
-    const r = await dbBarix.findAndCountAll()
+    const r = await Barix.find()
     res.status(200).json({ data: r })
   } catch (err) {
     res.status(500).json({ status: 'error', data: err })

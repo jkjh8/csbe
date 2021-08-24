@@ -6,8 +6,7 @@ const Barix = require('../../models/barix')
 router.get('/', async (req, res) => {
   const { location } = req.query
   try {
-    const r = await Zones.findAll({
-      include: [Barix] })    
+    const r = await Zones.find({})    
     return res.status(200).json({ data: r })
   } catch (err) {
     console.log(err)
