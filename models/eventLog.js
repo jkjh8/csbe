@@ -9,7 +9,7 @@ const logsSchema = new mongoose.Schema({
   message: { type: String, required: true },
   createdAt: { type: Date, required: true, default: Date.now }
 })
-// logsSchema.index({ '$**': 'text' })
+logsSchema.index({ '$**': 'text' })
 logsSchema.plugin(mongoosePaginate)
 
 const Logs = mongoose.model('Logs', logsSchema)

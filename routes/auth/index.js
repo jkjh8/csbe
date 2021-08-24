@@ -38,7 +38,7 @@ router.post('/login', function (req, res) {
 
       const r = await Users.updateOne({ userId: user.userId }, { numberOfLogin: user.numberOfLogin + 1, loginAt: moment() })
       if (r) {  
-        const token = makeToken({ name: user.name, user_id: user.user_id, email: user.email})
+        const token = makeToken({ name: user.name, userId: user.userId, email: user.email})
         //Send Accesstoken
         res.cookie('accessToken', token.accessToken, { httpOnly: true })
         //Refresh token
@@ -65,7 +65,7 @@ router.get('/getUser', function (req, res) {
       })
     }
     if (user) {
-      const token = makeToken({ name: user.name, user_id: user.user_id, email: user.email })
+      const token = makeToken({ name: user.name, userId: user.userId, email: user.email })
       res.cookie('accessToken', token.accessToken, { httpOnly: true })
     }
     res.status(200).json({ user: user, info: info }).end()
@@ -81,7 +81,7 @@ router.get('/refUser', function(req, res) {
       })
     }
     if (user) {
-      const token = makeToken({ name: user.name, user_id: user.user_id, email: user.email })
+      const token = makeToken({ name: user.name, userId: user.userId, email: user.email })
       res.cookie('accessToken', token.accessToken, { httpOnly: true })
     }
     res.status(200).json({ user: user, info: info }).end()

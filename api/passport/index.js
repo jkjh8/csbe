@@ -33,7 +33,7 @@ const jwtRefOption = { jwtFromRequest: getRefreshToken, secretOrKey: process.env
 
 async function localVerify(id, password, done) {
   try {
-    const user = await Users.findOne({ userd: id }, { _id: 0 })
+    const user = await Users.findOne({ userId: id }, { _id: 0 })
     if (!user) return done(null, false, { message: '사용자를 찾을 수 없습니다.' })
     if (bcrypt.compareSync(password, user.password)) {
       delete user[password]

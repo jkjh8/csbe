@@ -1,21 +1,20 @@
 const express = require('express')
 const router = express.Router()
-const Logs = require('../../models/eventLog')
+const Logs = require('../../models/eventlog')
 
 router.get('/', async (req, res) => {
   try {
-    let { limit, page, search } = req.body
+    const { limit, page, search } = req.query
 
-    let findQuery = {}
     const searchOptions = []
-    const paginateOptions = { page: page ?? 1, limit: limit ?? 10, sort: { createdAt: -1 } }
 
-    if (searchOptions.length > 0) {
-      findQuery = { $and: searchOptions }
+    if (search && search !== 'undefined') {
+      searchOptions.push({ $text: { $search: search } })
     }
+    const paginateOptions = { page: page, limit: limit, sort: { createdAt: -1 } }
 
-    const r = await Logs.paginate(findQuery, paginateOptions)
-    res.status(200).json({ rowsPerPage: limit, page: page, rows: r })
+    const r = await Logs.paginate(searchOptions.length ? { $and: searchOptions } : {}, paginateOptions)
+    res.status(200).json(r)
   } catch (error) {
     console.log(error)
     res.status(500).json({ error: error })
