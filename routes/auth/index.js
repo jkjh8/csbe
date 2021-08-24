@@ -9,60 +9,50 @@ const jwt = require('jsonwebtoken')
 const moment = require('moment')
 
 const makeToken = require('../../api/users/makeToken')
-const dbUsers = require('../../models').Users
+const Users = require('../../models/users')
 
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 
 dotenv.config({ path: path.join(__dirname, '../../.env') })
 
-router.post('/register', function (req, res) {
-  const user = req.body
-  dbUsers.findOne({
-    where: { user_id: user.user_id }
-  }).then((result) => {
-    if (result) {
-      return res.status(403).json({ message: '이미 가입되어 있는 이메일 입니다.'})
-    }
-  })
-
-  bcrypt.hash(user.password, saltRounds, function(err, hash) {
-    if (err) {
-      res.status(500).json({ result: err, message: '비밀번호 암호화 에러' })
-    }
-    user.password = hash
-    dbUsers.create(user).then((result) => {
-      res.status(200).json({ result: result })
-    }).catch((error) => {
-      res.status(500).json({ result: error, message: '데이터베이스 에러' })
-    })
-  })
+router.post('/register', async function (req, res) {
+  try {
+    const user = await Users.findOne({ userId: req.body.userId})
+    if (user) return res.status(403).json({ message: '이미 가입되어 있는 이메일 입니다.'})
+    const newUser = new Users(req.body)
+    const r = await newUser.save()
+    if (r) res.status(200).json({ result: r })
+  } catch (error) {
+    res.status(500).json({ result: error, message: '서버 오류가 발생하였습니다.' })
+  }
 })
 
-router.post('/login', function(req, res) {
+router.post('/login', function (req, res) {
   passport.authenticate('local', {
     session: false
-  }, (err, user, info) => {
-    console.log('User', user)
-    if (err) return res.status(403).json({ error: err })
-    if (!user) return res.status(403).json(info)
+  }, async (err, user, info) => {
+    try {
+      if (err) return res.status(403).json({ error: err })
+      if (!user) return res.status(403).json(info)
 
-    dbUsers.update({ number_of_login:user.number_of_login + 1, loginAt: moment() }, { where: { user_id: user.user_id } }).then(result => {
-      const token = makeToken({ name: user.name, user_id: user.user_id, email: user.email})
-      //Send Accesstoken
-      res.cookie('accessToken', token.accessToken, { httpOnly: true })
-      //Refresh token
-      if (req.body.keepLoggedin) {
-        res.cookie('refreshToken', token.refreshToken, { httpOnly: true })
-      } else {
-        res.clearCookie('refreshToken')
+      const r = await Users.updateOne({ userId: user.userId }, { numberOfLogin: user.numberOfLogin + 1, loginAt: moment() })
+      if (r) {  
+        const token = makeToken({ name: user.name, user_id: user.user_id, email: user.email})
+        //Send Accesstoken
+        res.cookie('accessToken', token.accessToken, { httpOnly: true })
+        //Refresh token
+        if (req.body.keepLoggedin) {
+          res.cookie('refreshToken', token.refreshToken, { httpOnly: true })
+        } else {
+          res.clearCookie('refreshToken')
+        }
       }
-
-      return res.status(200).json({ user: user }).end()
-    }).catch(err => {
-      console.log(err.message)
-      return res.status(500).json({ user: false, message: err})
-    })
+      res.status(200).json({ user: user }).end()
+    } catch (error) {
+      console.log(error.message)
+      return res.status(500).json({ user: false, message: error })
+    }
   }) (req, res)
 })
 

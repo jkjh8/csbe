@@ -7,7 +7,7 @@ dotenv.config({ path: path.join(__dirname, '../../.env') })
 const JWTStrategy = require('passport-jwt').Strategy
 const LocalStrategy = require('passport-local').Strategy
 
-const dbUsers = require('../../models').Users
+const Users = require('../../models/users')
 
 const getAccessToken = function (req) {
   if (req && req.cookies && req.cookies['accessToken']) {
@@ -27,16 +27,13 @@ const getRefreshToken = function (req) {
   return null
 }
 
-const localOption = { usernameField: 'user_id', passwordField: 'password' }
+const localOption = { usernameField: 'userId', passwordField: 'password' }
 const jwtOption = { jwtFromRequest: getAccessToken, secretOrKey: process.env.JWT_SECRET }
 const jwtRefOption = { jwtFromRequest: getRefreshToken, secretOrKey: process.env.JWT_SECRET }
 
-function localVerify(id, password, done) {
-  dbUsers.findOne({
-    where: { user_id: id },
-    attributes: { exclude: ['_id'] }
-    
-  }).then((user) => {
+async function localVerify(id, password, done) {
+  try {
+    const user = await Users.findOne({ userd: id }, { _id: 0 })
     if (!user) return done(null, false, { message: '사용자를 찾을 수 없습니다.' })
     if (bcrypt.compareSync(password, user.password)) {
       delete user[password]
@@ -44,23 +41,19 @@ function localVerify(id, password, done) {
     } else {
       return done(null, false, { message: '패스워드가 일치하지 않습니다.'})
     }
-  }).catch((err) => {
-    return done(null, false, { message: '알 수 없는 오류가 발생하였습니다.', error: err })
-  })
+  } catch (error) {
+    done(null, false, { message: '알 수 없는 오류가 발생하였습니다.', error: error })
+  }
 }
 
-function jwtVerify(payload, done) {
-  dbUsers.findOne({
-    where: { user_id: payload.user_id },
-    attributes: { exclude: ['_id', 'password'] }
-  }).then((user) => {
-    if (!user) {
-      return done(null, false, { message: '사용자를 찾을 수 없습니다.'})
-    }
-    return done(null, user, payload)
-  }).catch((err) => {
-    return done(err)
-  })
+async function jwtVerify(payload, done) {
+  try {
+    const user = await Users.findOne({ userId: payload.userId }, { _id: 0, password: 0 })
+    if (!user) return done(null, false, { message: '사용자를 찾을 수 없습니다.'})
+    done(null, user, payload)
+  } catch (error) {
+    done(null, false, { message: '알 수 없는 오류가 발생하였습니다.', error: error })
+  }
 }
 
 module.exports = () => {

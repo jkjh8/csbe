@@ -10,8 +10,10 @@ const cookieParser = require('cookie-parser')
 const passport = require('passport')
 
 //DB model sync
-const sequelize = require('./models').sequelize
-sequelize.sync()
+require('./api/db')
+// const sequelize = require('./models').sequelize
+// sequelize.sync()
+
 
 require('./api/passport')()
 
@@ -50,13 +52,6 @@ io.on('connection', (socket) => {
 
 server.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
-  require('./models').Logs.create({
-    source: '한강본부',
-    category: 'info',
-    priority: 'low',
-    zones: '본사',
-    message: '웹서버가 재부팅 되었습니다.'
-  })
 })
 
 // require('./api/interval/barix')
