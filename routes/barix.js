@@ -11,13 +11,37 @@ router.get('/data/submit', async function (req, res) {
     let r = item.split('=')
     objBarixData[r[0]] = r[1]
   })
-  console.log(objBarixData)
+  // console.log(objBarixData)
 
   //find db
-  const r = await Barix.findOneAndUpdate({ mac: mac }, { $set: { mac, alarm, info: objBarixData } }, { upsert: true })
+  const r = await Barix.findOne({ mac: mac })
   if (r) {
-    console.log(r)
+    await Barix.updateOne({ _id: r._id },
+      { $set: {
+        mac,
+        alarm,
+        status: true,
+        updatedAt: Date.now(),
+        info: objBarixData
+      }
+    })
+  } else {
+    const newDevice = new Barix({
+      mac,
+      alarm,
+      status: true,
+      checked: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      info: objBarixData
+    })
+    r = await newDevice.save()
+    console.log('새로운 장비가 등록되었습니다.')
   }
+  // const r = await Barix.findOneAndUpdate({ mac: mac }, { $set: { mac, alarm, info: objBarixData } }, { upsert: true })
+  // if (r) {
+  //   console.log(r)
+  // }
 
   //   if (result.length > 0) {
   //     dbBarix.update({
@@ -64,14 +88,4 @@ router.get('/data/submit', async function (req, res) {
   // })
   res.sendStatus(200)
 })
-
-router.get('/get', async function (req, res) {
-  try {
-    const r = await Barix.find()
-    res.status(200).json({ data: r })
-  } catch (err) {
-    res.status(500).json({ status: 'error', data: err })
-  }
-})
-
 module.exports = router

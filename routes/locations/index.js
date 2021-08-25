@@ -14,13 +14,14 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
+    console.log(req.body)
     if (!req.body.port) return res.status(500).json({ message: 'Port를 확인해주세요.' })
     let r = await Locations.findOne({ where: { index: req.body.index } })
     if (r) return res.status(500).json({ message: 'Index가 중복 되었습니다.'})
     r = await Locations.findOne({ where: { name: req.body.name } })
     if (r) return res.status(500).json({ message: '이름이 중복되었습니다.'})
     const c = new Locations(req.body)
-    r = await c.save
+    r = await c.save()
     res.status(200).json(r)
   } catch (err) {
     console.log(err)
@@ -42,10 +43,10 @@ router.put('/', async (req, res) => {
   }
 })
 
-router.post('/delete', async (req, res) => {
-  console.log(req.body)
+router.get('/delete', async (req, res) => {
+  const { _id } = req.query
   try {
-    let r = await Locations.destroy({ where: { _id: req.body._id } })
+    let r = await Locations.deleteOne({ _id: _id })
     res.status(200).json(r)
   } catch (err) {
     console.log(err)

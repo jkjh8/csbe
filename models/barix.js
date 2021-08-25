@@ -1,22 +1,18 @@
 const mongoose = require('mongoose')
 
 const barixSchema = new mongoose.Schema({
+  index: { type: Number },
   name: { type: String },
   mac: { type: String, unique: true, requird: true },
   alarm: { type: Boolean, default: false },
   info: { type: Object },
   // additional info
   description: { type: String },
-  checked: { type: Boolean, default: false },
-  status: { type: Boolean, default: false },
+  checked: { type: Boolean, default: false, requird: true },
+  status: { type: Boolean, default: false, requird: true },
   // timestamp
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
-})
-
-barixSchema.pre('save', function (next) {
-  this.updatedAt = Date.now()
-  next()
+  createdAt: { type: Date, default: Date.now, requird: true },
+  updatedAt: { type: Date, default: Date.now, requird: true }
 })
 
 const Barix = mongoose.model('Barix', barixSchema)
