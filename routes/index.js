@@ -7,8 +7,8 @@ router.get('/', (req, res, next) => {
 
 router.use('/auth', require('./auth'))
 router.use('/eventlog', require('./eventlog'))
-router.use('/sensors', require('./barix'))
-router.use('/devices', require('./devices'))
+// router.use('/sensors', require('./devices/barix'))
+router.use('/', require('./devices'))
 router.use('/locations', require('./locations'))
 router.use('/zones', require('./zones'))
 router.post('/qsc', function (req, res) {

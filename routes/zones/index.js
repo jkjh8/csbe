@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const Zones = require('../../models/zones')
-const Barix = require('../../models/barix')
 
 router.get('/', async (req, res) => {
   const { location } = req.query

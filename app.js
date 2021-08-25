@@ -54,5 +54,5 @@ server.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
 })
 
-require('./api/devices/checkBarix')
-require('./api/return/status')
+// require('./api/devices/checkBarix')
+// require('./api/return/status')
