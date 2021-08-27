@@ -1,7 +1,7 @@
 
 const express = require('express')
 const router = express.Router()
-const Devices = require('../../models/devices')
+const Devices = require('../../../models/devices')
 
 router.get('/', async function (req, res) {
   try {

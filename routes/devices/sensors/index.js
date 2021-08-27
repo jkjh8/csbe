@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const Devices = require('../../models/devices')
+const Devices = require('../../../models/devices')
 
 
 router.get('/data/submit', async function (req, res) {

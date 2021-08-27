@@ -56,3 +56,4 @@ server.listen(port, () => {
 
 // require('./api/devices/checkBarix')
 // require('./api/return/status')
+require('./api/devices/getInstreamer')
