@@ -9,6 +9,7 @@ const devicesSchema = new mongoose.Schema({
   type: { type: String, required: true },
   mode: { type: String },
   alarm: { type: Boolean, default: false },
+  controls : { type: Object },
   info: { type: Object },
   // additional info
   description: { type: String },

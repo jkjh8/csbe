@@ -1,9 +1,34 @@
 const express = require('express')
 const router = express.Router()
 const Devices = require('../../../models/devices')
+const qsys = require('../../../api/devices/qsys')
+const barix = require('../../../api/devices/barix')
 
+router.post('/qsys', async (req, res) => {
+  const nic = req.body[0]
+  console.log(nic)
+  const ipaddress = nic.Address
+  let mac = nic.MACAddress.replace(/:/gi, '')
 
-router.get('/data/submit', async function (req, res) {
+  const qsysRt = await Devices.findOne({ ipaddress: ipaddress })
+  if (!qsysRt) {
+    const info = await qsys.getStatus({ host: ipaddress, port: 1710 })
+    const qsysCreate = new Devices({
+      ipaddress, mac,
+      type: 'QSys',
+      mode: 'Input',
+      status: true,
+      port: 1710,
+      info: info,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    })
+    await qsysCreate.save()
+  }
+  res.sendStatus(200)
+})
+
+router.get('/data/submit', async (req, res) => {
   const { mac, alarm, info } = req.query
   // make barix data to object
   const objBarixData = new Object
@@ -11,42 +36,37 @@ router.get('/data/submit', async function (req, res) {
     let r = item.split('=')
     objBarixData[r[0]] = r[1]
   })
-  // console.log(objBarixData)
-
   //find db
   const r = await Devices.findOne({ mac: mac })
   if (r) {
-    await Devices.updateOne({ _id: r._id },
+    await Devices.updateOne({ mac: r.mac },
       { $set: {
-        mac,
         alarm,
         ipaddress: objBarixData.IP_address,
-        port: 3030,
         type: 'Barix',
         status: true,
-        mode: 'Output',
         updatedAt: Date.now(),
-        info: objBarixData
       }
     })
   } else {
+    const info = await barix(objBarixData.IP_address)
     const newDevice = new Devices({
       mac,
       alarm,
       status: true,
       checked: false,
       ipaddress: objBarixData.IP_address,
-      port: 3030,
       type: 'Barix',
       status: true,
       mode: 'Output',
+      info: info,
       createdAt: Date.now(),
-      updatedAt: Date.now(),
-      info: objBarixData
+      updatedAt: Date.now()
     })
-    r = await newDevice.save()
+    await newDevice.save()
     console.log('새로운 장비가 등록되었습니다.')
   }
   res.sendStatus(200)
 })
+
 module.exports = router

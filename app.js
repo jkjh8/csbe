@@ -54,6 +54,9 @@ server.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
 })
 
+const devices = require('./api/devices')
+devices.get()
 // require('./api/devices/checkBarix')
 // require('./api/return/status')
-require('./api/devices/getInstreamer')
+// require('./api/devices/barix')
+// require('./api/devices/qsys')
