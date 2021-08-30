@@ -1,8 +1,10 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
-// const Devices = require('../../models/devices')
+const Devices = require('../../../models/devices')
 
-module.exports = async (address) => {
+
+
+async function http (address) {
   try {
     const html = await axios.get(`http://${address}/status`)
     const $ = cheerio.load(html.data)
@@ -33,5 +35,22 @@ module.exports = async (address) => {
     return r
   } catch (error) {
     return null
+  }
+}
+module.exports.http = http
+module.exports.get = (ipaddress) => {
+  try {
+    const deviceInfo = await http(ipaddress)
+    if (deviceInfo) {
+      await Devices.updateOne({
+        ipaddress: ipaddress
+      }, {
+        $set: { status: true, info: r }
+      })
+    } else {
+      await Devices.updateOne({ ipaddress: ipaddress }, { $set: { status: false } })
+    }
+  } catch (err) {
+    await Devices.updateOne({ ipaddress: ipaddress }, { $set: { status: false } })
   }
 }

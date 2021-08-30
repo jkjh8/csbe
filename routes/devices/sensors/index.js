@@ -5,25 +5,22 @@ const qsys = require('../../../api/devices/qsys')
 const barix = require('../../../api/devices/barix')
 
 router.post('/qsys', async (req, res) => {
-  const nic = req.body[0]
-  console.log(nic)
-  const ipaddress = nic.Address
-  let mac = nic.MACAddress.replace(/:/gi, '')
+  const ipaddress = req.body[0].Address
+  let mac = req.body[0].MACAddress.replace(/:/gi, '')
 
-  const qsysRt = await Devices.findOne({ ipaddress: ipaddress })
-  if (!qsysRt) {
+  const chkDevice = await Devices.findOne({ ipaddress: ipaddress })
+  if (!chkDevice) {
     const info = await qsys.getStatus({ host: ipaddress, port: 1710 })
-    const qsysCreate = new Devices({
+    const newDevice = new Devices({
       ipaddress, mac,
       type: 'QSys',
       mode: 'Input',
-      status: true,
       port: 1710,
       info: info,
       createdAt: Date.now(),
       updatedAt: Date.now()
     })
-    await qsysCreate.save()
+    await newDevice.save()
   }
   res.sendStatus(200)
 })
@@ -37,8 +34,8 @@ router.get('/data/submit', async (req, res) => {
     objBarixData[r[0]] = r[1]
   })
   //find db
-  const r = await Devices.findOne({ mac: mac })
-  if (r) {
+  const chkDevice = await Devices.findOne({ mac: mac })
+  if (chkDevice) {
     await Devices.updateOne({ mac: r.mac },
       { $set: {
         alarm,
@@ -53,8 +50,6 @@ router.get('/data/submit', async (req, res) => {
     const newDevice = new Devices({
       mac,
       alarm,
-      status: true,
-      checked: false,
       ipaddress: objBarixData.IP_address,
       type: 'Barix',
       status: true,

@@ -6,23 +6,7 @@ module.exports.get = async () => {
   const devices = await Devices.find()
   devices.forEach(async (device) => {
     if (device.type === 'Barix') {
-      try {
-        const r = await barix(device.ipaddress)
-        if (r) {
-          await Devices.updateOne({
-            ipaddress: device.ipaddress
-          }, {
-            $set: {
-              status: true,
-              info: r
-            }
-          })
-        } else {
-          returnError(device.ipaddress)
-        }
-      } catch (err) {
-        returnError(device.ipaddress)
-      }
+      await barix.get(device.ipaddress)
     } else if (device.type === 'QSys') {
       try {
         const r = await qsys.getStatus({ host: device.ipaddress, port: device.port })

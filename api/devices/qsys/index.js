@@ -1,6 +1,6 @@
 const QrcClient = require('qsys-qrc-client').default
 const { commands } = require('qsys-qrc-client')
-const Devices = require('../../models/devices')
+const Devices = require('../../../models/devices')
 
 const connect = (address) => {
   const client = new QrcClient()
