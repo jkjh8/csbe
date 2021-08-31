@@ -36,7 +36,7 @@ router.get('/data/submit', async (req, res) => {
   //find db
   const chkDevice = await Devices.findOne({ mac: mac })
   if (chkDevice) {
-    await Devices.updateOne({ mac: r.mac },
+    return await Devices.updateOne({ mac: mac },
       { $set: {
         alarm,
         ipaddress: objBarixData.IP_address,
@@ -45,22 +45,34 @@ router.get('/data/submit', async (req, res) => {
         updatedAt: Date.now(),
       }
     })
-  } else {
-    const info = await barix(objBarixData.IP_address)
-    const newDevice = new Devices({
-      mac,
-      alarm,
-      ipaddress: objBarixData.IP_address,
-      type: 'Barix',
-      status: true,
-      mode: 'Output',
-      info: info,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    })
-    await newDevice.save()
-    console.log('새로운 장비가 등록되었습니다.')
   }
+  const chkDevicebyIp = await Devices.findOne({ ipaddress: objBarixData.IP_address })
+  if (chkDevicebyIp) {
+    return await Devices.updateOne({ ipaddress: objBarixData.IP_address },
+      { $set: {
+        alarm,
+        ipaddress: objBarixData.IP_address,
+        type: 'Barix',
+        status: true,
+        updatedAt: Date.now(),
+      }
+    })
+  }
+
+  const getInfo = await barix.get(objBarixData.IP_address)
+  const newDevice = new Devices({
+    mac,
+    alarm,
+    ipaddress: objBarixData.IP_address,
+    type: 'Barix',
+    status: true,
+    mode: 'Output',
+    info: getInfo,
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  })
+  await newDevice.save()
+  console.log('새로운 장비가 등록되었습니다.')
   res.sendStatus(200)
 })
 

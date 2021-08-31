@@ -9,7 +9,7 @@ module.exports.get = (ipaddress) => {
       await Devices.updateOne({
         ipaddress: ipaddress
       }, {
-        $set: { status: deviceInfo.Status.Code === 0 ? true : false, info: deviceInfo }
+        $set: { status: deviceInfo.Status.Code === 0 ? true : false, info: { $set: {deviceInfo } }
       })
     } else {
       await Devices.updateOne({ ipaddress: ipaddress }, { $set: { status: false } })

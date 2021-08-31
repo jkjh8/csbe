@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const devicesSchema = new mongoose.Schema({
   index: { type: Number },
   name: { type: String },
-  mac: { type: String, unique: true, required: true },
+  mac: { type: String, unique: true },
   ipaddress: { type: String, unique: true, required: true },
   port: { type: Number },
   type: { type: String, required: true },
@@ -18,7 +18,8 @@ const devicesSchema = new mongoose.Schema({
   status: { type: Boolean, default: false, required: true },
   // timestamp
   createdAt: { type: Date, default: Date.now, required: true },
-  updatedAt: { type: Date, default: Date.now, required: true }
+  updatedAt: { type: Date, default: Date.now, required: true },
+  failedAt: { type: Date }
 })
 
 const Device = mongoose.model('Device', devicesSchema)

@@ -38,14 +38,15 @@ async function http (address) {
   }
 }
 module.exports.http = http
-module.exports.get = (ipaddress) => {
+module.exports.get = async (ipaddress) => {
   try {
     const deviceInfo = await http(ipaddress)
     if (deviceInfo) {
+      console.log(ipaddress)
       await Devices.updateOne({
         ipaddress: ipaddress
       }, {
-        $set: { status: true, info: r }
+        $set: { mac: deviceInfo.hardware.mac.replace(/:/gi, ''), status: true, info: deviceInfo }
       })
     } else {
       await Devices.updateOne({ ipaddress: ipaddress }, { $set: { status: false } })
