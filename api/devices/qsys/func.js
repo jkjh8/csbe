@@ -35,3 +35,8 @@ module.exports.getComponents = (ipaddress) => {
     console.error(error)
   }
 }
+
+module.exports.componentsGetControls = (ipaddress, componentName) => {
+  const data = await qsys.componentGetControls(ipaddress, componentName)
+  console.log(data)
+} 

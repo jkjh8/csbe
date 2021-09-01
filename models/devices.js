@@ -5,13 +5,10 @@ const devicesSchema = new mongoose.Schema({
   name: { type: String },
   mac: { type: String, unique: true },
   ipaddress: { type: String, unique: true, required: true },
-  port: { type: Number },
   type: { type: String, required: true },
   mode: { type: String },
   alarm: { type: Boolean, default: false },
   controls : { type: Object },
-  info: { type: Object },
-  // additional info
   description: { type: String },
   auth: { type: Array },
   checked: { type: Boolean, default: false, required: true },
@@ -20,6 +17,11 @@ const devicesSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now, required: true },
   updatedAt: { type: Date, default: Date.now, required: true },
   failedAt: { type: Date }
+})
+
+devicesSchema.pre('updateOne', (next) => {
+  this.updatedAt = Date.now()
+  next()
 })
 
 const Device = mongoose.model('Device', devicesSchema)

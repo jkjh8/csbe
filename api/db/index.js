@@ -1,13 +1,7 @@
 const mongoose = require('mongoose')
 const Logs = require('../../models/eventlog')
 
-mongoose.connect('mongodb://localhost/mediaserver', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true,
-  connectTimeoutMS: 1000
-})
+mongoose.connect('mongodb://localhost/mediaserver')
 
 const db = mongoose.connection
 

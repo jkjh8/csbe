@@ -17,9 +17,8 @@ const zonesSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 })
 
-zonesSchema.pre('save', function (next) {
+zonesSchema.pre('updateOne', function (next) {
   this.updatedAt = Date.now()
-  next()
 })
 
 const Zones = mongoose.model('Zones', zonesSchema)

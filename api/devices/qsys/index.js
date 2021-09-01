@@ -81,6 +81,16 @@ module.exports.getComponents = async (address) => {
   }
 }
 
+module.exports.componentGetControls = async (address, componentName) => {
+  try {
+    const client = await connect(address)
+    const result = await client.send(commands.componentGetControls(componentName))
+    client.end()
+    return result
+  } catch (error) {
+    return null
+  }
+}
 module.exports.getComponentControls = async (address, componentName, controlNames) => {
   try {
     const client = await connect(address)

@@ -16,7 +16,7 @@ const locationSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 })
 
-locationSchema.pre('save', function (next) {
+locationSchema.pre('updateOne', function (next) {
   this.updatedAt = Date.now()
   next()
 })

@@ -1,4 +1,4 @@
-const Barix = require('../../models/barix')
+const Barix = require('../../models/barixes')
 
 setInterval(async () => {
   const r = await Barix.find()
