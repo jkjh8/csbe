@@ -44,15 +44,7 @@ const barixSchema = new mongoose.Schema({
     relay8: { type: Number, default: 0 }
   },
   failedAt: { type: Date }
-})
-
-barixSchema.pre('updateOne', (next) => {
-  this.updatedAt = Date.now()
-  next()
-}, {
-  timestamps: true
-})
-
+}, { timestamps: true })
 
 const Barixes = mongoose.model('Barixes', barixSchema)
 module.exports = Barixes

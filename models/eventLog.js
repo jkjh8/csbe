@@ -8,6 +8,8 @@ const logsSchema = new mongoose.Schema({
   zones: { type: Array },
   message: { type: String, required: true },
   createdAt: { type: Date, required: true, default: Date.now }
+}, {
+  timestamps: true
 })
 logsSchema.index({ '$**': 'text' })
 logsSchema.plugin(mongoosePaginate)

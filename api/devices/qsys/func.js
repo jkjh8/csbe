@@ -1,5 +1,6 @@
 const Device = require('../../../models/devices')
 const Devices = require('../../../models/devices')
+const Qsys = require('../../../models/qsys')
 const qsys = require('./index')
 
 module.exports.get = (ipaddress) => {
@@ -39,4 +40,4 @@ module.exports.getComponents = (ipaddress) => {
 module.exports.componentsGetControls = (ipaddress, componentName) => {
   const data = await qsys.componentGetControls(ipaddress, componentName)
   console.log(data)
-} 
+}
