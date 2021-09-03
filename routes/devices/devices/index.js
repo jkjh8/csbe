@@ -4,7 +4,10 @@ const router = express.Router()
 const Devices = require('../../../models/devices')
 const Barixes = require('../../../models/barixes')
 const Qsys = require('../../../models/qsys')
-const { initPA, initStations, initTx, initRx } = require('../../../api/devices/qsys/init')
+const qsys = require('../../../api/devices/qsys')
+
+const { check, createQsys, compaireQsys } = require('./functions')
+
 router.get('/', async function (req, res) {
   try {
     const r = await Devices.find()
@@ -16,48 +19,36 @@ router.get('/', async function (req, res) {
 
 async function createqQsys (obj) {
   const newQsys = new Qsys({
-    ipaddress: obj.ipaddress
+    ipaddress: obj.ipaddress,
   })
-  initPA(newQsys, obj.channels)
-  initStations(newQsys, obj.stations)
-  initTx(newQsys, obj.tx)
-  initRx(newQsys, obj.rx)
+  qsys.addPA(newQsys, obj.channels)
+  qsys.addStations(newQsys, obj.stations)
+  qsys.addTx(newQsys, obj.tx)
+  qsys.addRx(newQsys, obj.rx)
   await newQsys.save()
 }
 
 router.post('/', async function (req, res) {
-  console.log(req.body)
+  const info = req.body
   try {
     // 중복확인
-    let r = await Devices.findOne({ index: req.body.index })
-    if (r) return res.status(500).json({ message: '인덱스가 중복되었습니다.' })
-    r = await Devices.findOne({ ipaddress: req.body.ipaddress })
-    if (r) return res.status(500).json({ message: '아이피 주소가 중복되었습니다.' })
-    if (req.body.mac) {
-      r = await Devices.findOne({ mac: req.body.mac.toUpperCase() })
-      if (r) return res.status(500).json({ message: 'Mac 주소가 이미 존재 합니다.'})
+    const checkMessage = await check(info)
+    if (checkMessage) return res.status(500).json({ message: checkMessage })
+    // qsys 생성
+    if (info.type === 'QSys') {
+      const qsysError = await createQsys(info)
+      if (qsysError) return res.status(500).json({ message: qsysError })
     }
-    // 새로운 데이터 생성
-    const createItem = new Devices({
-      index: req.body.index,
-      name: req.body.name,
-      ipaddress: req.body.ipaddress,
-      mode: req.body.mode,
-      type: req.body.type,
-      checked: true,
-      mac: req.body.mac,
-      info: req.body.info
+    // barix 생성 안함 데이터 갱신시 자동 등록
+
+    // 디바이스 생성 및 저장
+    const device = new Devices(info)
+    device.save().then(doc => {
+      return res.status(200).json({ data: doc })
+    }).catch( async (err) => {
+      await Qsys.deleteMany({ ipaddress: info.ipaddress })
+      return res.status(500).json({ message: '데이터 베이스 오류가 발생하였습니다.', data: err })
     })
-    if (req.body.type === 'QSys') {
-      createqQsys(req.body)
-    }
-    createItem.save((err) => {
-      if (err) {
-        return res.status(500).json({ data: err, message: '데이터 베이스 오류가 발생하였습니다.'})
-      }
-    })
-    // qsys db값 등록 해야됨
-    res.status(200).json({ data: createItem })
   } catch (err) {
     console.log(err)
     res.status(500).json({ data: err, message: '알 수 없는 오류가 발생하였습니다.' })
@@ -65,26 +56,36 @@ router.post('/', async function (req, res) {
 })
 
 router.put('/', async function (req, res) {
-  console.log(req.body)
+  const info = req.body
   try {
     // 중복확인
-    let r = await Devices.findOne({ index: req.body.index })
-    if (r && r._id.toString() !== req.body._id) return res.status(500).json({ message: '인덱스가 중복되었습니다.' })
-    r = await Devices.findOne({ ipaddress: req.body.ipaddress })
-    if (r && r._id.toString() !== req.body._id) return res.status(500).json({ message: '아이피가 중복되었습니다.' })
-    // 데이터 업데이트
+    const checkMessage = await check(info)
+    if (checkMessage) return res.status(500).json({ message: checkMessage })
+
+    // qsys 확인
+    if (info.type === 'QSys') {
+      console.log('비교시작')
+      const qsysError = await compaireQsys(info)
+      if (qsysError) return res.status(500).json({ message: qsysError })
+    }
+    qsys.getZones(info)
+    qsys.getStations(info)
+
+    // if (client) {
+    //   const data = await qsys.updateZones(info, client, info.channels)
+    //   client.end()
+    //   console.log(data)
+    // } else {
+    //   console.log(`Q-SYS IP: ${info.ipaddress}에 접속할 수 없습니다.`)
+    // }
+
+    info.ckecked = true
+    delete info.updatedAt
+
     r = await Devices.updateOne({
-      _id: req.body._id
+      _id: info._id
     }, {
-      $set: {
-        name: req.body.name,
-        index: req.body.index,
-        channels: req.body.channels,
-        stations: req.body.stations,
-        tx: req.body.tx,
-        rx: req.body.rx,
-        checked: true
-      }
+      $set: info
     })
     // qsys에서 채널수 맞춰서 db 값을 줄이거나 늘이는 로직 해야됨
     res.status(200).json({ data: r })

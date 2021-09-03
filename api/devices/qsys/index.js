@@ -3,212 +3,157 @@ const { commands } = require('qsys-qrc-client')
 const Devices = require('../../../models/devices')
 const Qsys = require('../../../models/qsys')
 
-const connect = (address) => {
-  const client = new QrcClient()
+module.exports.getStatus = async function getStatus (obj) {
+  let client = new QrcClient()
   client.socket.setTimeout(5000)
-  client.on('connect', function () {
-    console.log('qsys connect')
-  })
-  client.on('finish', function () {
-    console.log('qsys finish ', address)
-  })
-  client.on('error', async function (e) {
-    console.log('qsys error ', address, e)
-    try {
-      await Devices.updateOne({
-        ipaddress: address.host
-      }, {
-        $set: {
-          status: false
-        }
-      })
-    } catch (err) {
-      console.log(err)
-    }
-  })
-  client.on('timeout', function () {
-    console.error('q-sys connet timeout', address)
-    client.end()
-  })
-  return client.connect({ host: address, port: 1710 })
-}
-
-const logon = async (client, username, password) => {
-  return await client.send(commands.logon(username, password))
-}
-
-module.exports.getStatus = async (address) => {
-  try {
-    const client = await connect(address)
-    // const user = await logon(client, 'admin', 'password')
+  client.socket.on('connect', async function () {
     const status = await client.send(commands.getStatus())
     client.end()
-    return status
-  } catch (err) {
-    return null
-  }
-}
-
-module.exports.getNamedControls = async (address, controlNames) => {
-  try {
-    const client = await connect(address)
-    const result = await client.send(commands.getNamedControls(controlNames))
-    client.end()
-    return result
-  } catch (error) {
-    return null
-  }
-}
-
-module.exports.setNamedControl = async (address, controlName, spec) => {
-  try {
-    const client = await connect(address)
-    const result = await client.send(commands.setNamedControl(controlName, spec))
-    client.end()
-    return result
-  } catch (error) {
-    return null
-  }
-}
-
-module.exports.getComponents = async (address) => {
-  try {
-    const client = await connect(address)
-    const result = await client.send(commands.getComponents())
-    client.end()
-    return result
-  } catch (error) {
-    return null
-  }
-}
-
-module.exports.componentGetControls = async (address, componentName) => {
-  try {
-    const client = await connect(address)
-    const result = await client.send(commands.componentGetControls(componentName))
-    client.end()
-    return result
-  } catch (error) {
-    return null
-  }
-}
-module.exports.getComponentControls = async (address, componentName, controlNames) => {
-  try {
-    const client = await connect(address)
-    const result = await client.send(commands.getComponentControls(componentName, controlNames))
-    client.end()
-    return result
-  } catch (error) {
-    return null
-  }
-}
-
-module.exports.setComponentControls = async (address, componentName, controls) => {
-  try {
-    const client = await connect(address)
-    const result = await client.send(commands.setComponentControls(componentName, controls))
-    client.end()
-    return result
-  } catch (error) {
-    return null
-  }
-}
-
-const paInit = async (ipaddress, numOfCh = 16) => {
-  const newQsys = new Qsys({
-    ipaddress: ipaddress,
-    channels: numOfCh
-  })
-  for (let i = 0; i < numOfCh; i++) {
-    newQsys.zone.push({
-      channel: i + 1,
-      active: false,
-      gain: 0,
-      mute: false,
-      name: '0',
-      priority: 0,
-      source: 0,
-      squelch: 0,
-      squelchactive: false,
-      bgmgain: 0,
-      bgmchannel: 1,
-      pagegain: 0,
-      pagemute: false,
-      messagegain: 0,
-      messagemute: false
+    await Qsys.updateOne({
+      ipaddress: obj.ipaddress
+    }, {
+      $set: status
     })
-  }
-  newQsys.save((err) => {
-    if (err) { console.error(err) }
   })
-  return newQsys
+  client.on('error', function () {
+    console.log(`Q-SYS IP: ${obj.ipaddress} 장비 정보 수집중 에러가 발생하였습니다.`)
+    client.socket.destroy()
+    client.end()
+  })
+  client.on('timeout', function () {
+    client.end()
+  })
+  client.connect({ host: obj.ipaddress, port: 1710 })
 }
 
-module.exports.paStatusUpdate = async (ipaddress) => {
-  try {
-    let channels = 16
-    
-    let db = await Qsys.findOne({ ipaddress: ipaddress })
-    if (db) {
-      channels = db.channels
-    } else {
-      db = await paInit(ipaddress)
-    }
-
-    const client = await connect(ipaddress)
-    if (client) {
-      await updatePAZones(db, client, channels)
-      await updatePABgms(db, client, channels)
-      client.end()
-      await db.save()
-    } else {
-      return console.error('qsys not connected')
-    }
-  } catch (err) {
-    console.error(err)
-  }
+// zones
+module.exports.getZones = async function getZones (obj) {
+  let client = new QrcClient()
+  client.socket.setTimeout(5000)
+  client.socket.on('connect', async function () {
+    const zoneControls = getPAControlNames(obj.channels)
+    const bgmControls = getPAControlBgmNames(obj.channels)
+    const zone = await client.send(commands.getComponentControls('PA', zoneControls))
+    const bgm = await client.send(commands.getComponentControls('PA', bgmControls))
+    client.end()
+    updateZones(zone, bgm, obj)
+  })
+  client.on('error', function (e) {
+    console.log(`Q-SYS IP: ${obj.ipaddress} 장비 정보 수집중 에러가 발생하였습니다.`, e)
+    client.socket.destroy()
+    client.end()
+  })
+  client.on('timeout', function () {
+    client.end()
+  })
+  client.connect({ host: obj.ipaddress, port: 1710 })
 }
 
-const updatePAZones = async (db, client, channels) => {
-  try {
-    const controlNames = getPAControlNames(channels)
-    const rt = await client.send(commands.getComponentControls('PA', controlNames))
-    rt.Controls.forEach(control => {
-      const name = control.Name.split('.')
-      const idx = Number(name[1]) - 1
+function updateZones (zone, bgm, obj) {
+  Qsys.findOne({ ipaddress: obj.ipaddress }).then((docs) => {
+    zone.Controls.forEach(e => {
+      const name = e.Name.split('.')
+      let idx = Number(name[1]) - 1
       const key = name[2] + (name[3] ? name[3]: '')
-      for (let i = 0; i < channels; i++) {
+  
+      for (let i = 0; i < obj.channels; i++) {
         if (i === idx) {
           if (key === 'name' || key === 'message') {
-            db.zone[idx][key] = control.String
+            docs.zone[idx][key] = e.String
             break
           }
-          db.zone[i][key] = control.Value
+          docs.zone[idx][key] = e.Value
           break
         }
       }
     })
-  } catch (err) {
-    console.error('update Pa Zones error', err)
-  }
-}
-
-const updatePABgms = async (db, client, channels) => {
-  const controlNames = getPAControlBgmNames(channels)
-  const rt = await client.send(commands.getComponentControls('PA', controlNames))
-
-  rt.Controls.forEach(control => {
-    const idx = Number(control.Name.replace('bgm.router.select.', ''))
-    for (let i = 0; i < channels; i++) {
-      if (i === idx) {
-        db.zone[i].bgmchannel = control.Value
-        break
+    bgm.Controls.forEach(e => {
+      const idx = Number(e.Name.replace(/[^0-9]/g, '')) - 1
+      for (let i = 0; i < obj.channels; i++) {
+        if (i === idx) {
+          docs.zone[idx].bgmchannel = e.Value
+        }
       }
-    }
+    })
+    docs.save()
+  }).catch(err => {
+    console.log('방송구간 업데이트 중 에러가 발생하였습니다.', err)
   })
 }
 
-const getPAControlNames = (channels) => {
+// stations
+module.exports.getStations = async function (obj) {
+  let client = new QrcClient()
+  client.socket.setTimeout(5000)
+  client.socket.on('connect', async function () {
+    const stations = []
+    const controlNames = getStationControlNames(obj.channels)
+    for (let i = 0; i < obj.stations; i++) {
+      const r = await client.send(commands.getComponentControls(`Station${i + 1}`, controlNames))
+      stations.push(r)
+    }
+    client.end()
+    updateStations(stations, obj)
+  })
+  client.on('error', function (e) {
+    console.log(`Q-SYS IP: ${obj.ipaddress} 장비 정보 수집중 에러가 발생하였습니다.`, e)
+    client.socket.destroy()
+    client.end()
+  })
+  client.on('timeout', function () {
+    client.end()
+  })
+  client.on('close', function () {
+    console.log('close')
+  })
+  client.connect({ host: obj.ipaddress, port: 1710 })
+}
+
+function updateStations (arr, obj) {
+  Qsys.findOne({ ipaddress: obj.ipaddress }).then((docs) => {
+    const select = []
+    arr.forEach((station, idx) => {
+      docs.stations[idx].stationId = idx + 1
+      station.Controls.forEach(e => {
+        const name = e.Name.replace(/\./gi, '')
+        switch (name) {
+          case 'mode':
+          case 'statustext':
+            docs.stations[idx][name] = e.String
+            break
+          case 'priority':
+          case 'archive':
+          case 'busy':
+          case 'ready':
+          case 'speaknow':
+          case 'split':
+          case 'stateraw':
+            docs.stations[idx][name] = e.Value
+            break
+          default:
+            select.push(e.Value)
+        }
+      docs.stations[idx].zoneselect = select
+      })
+    })
+    docs.save()
+  }).catch(err => {
+    console.log('스테이션 정보 업데이트 중 오류가 발생하였습니다.', err)
+  })
+}
+
+// default data
+function getStationControlNames (channels) {
+  const controlNames = [
+    'mode','priority','archive','busy','ready','speak.now','split','state.raw','status.text'
+  ]
+  for (let i = 0; i < channels; i++) {
+    controlNames.push(`zone.select.${i + 1}`)
+  }
+  return controlNames
+}
+
+function getPAControlNames (channels) {
   const controlNames = []
   for (let i = 0; i < channels; i++) {
     controlNames.push( `zone.${i + 1}.active`)
@@ -227,11 +172,108 @@ const getPAControlNames = (channels) => {
   return controlNames
 }
 
-const getPAControlBgmNames = (channels) => {
+function getPAControlBgmNames (channels) {
   const controlNames = []
   for (let i = 0; i < channels; i++) {
     controlNames.push( `bgm.router.select.${i + 1}`)
   }
   return controlNames
 }
-module.exports.paInit = paInit
+
+module.exports.addPA = function addPA (db, channels = 16) {
+  try {
+    for (let i = 0; i < channels; i++) {
+      db.zone.push({
+        channel: i + 1,
+        active: false,
+        gain: 0,
+        mute: false,
+        name: '0',
+        priority: 0,
+        source: 0,
+        squelch: 0,
+        squelchactive: false,
+        bgmgain: 0,
+        bgmchannel: 1,
+        pagegain: 0,
+        pagemute: false,
+        messagegain: 0,
+        messagemute: false
+      })
+    }
+  } catch (err) {
+    console.error('error initPa', err)
+  }
+}
+
+module.exports.addStations = async function addStations (db, stations = 4) {
+  try {
+    for (let i = 0; i < stations; i++) {
+      db.stations.push({
+        stationId: (i + 1),
+        mode: 'Live',
+        archive: false,
+        busy: false,
+        ready: false,
+        speaknow: false,
+        split: false,
+        stateraw: 0,
+        statustext: '',
+        zoneselect: []
+      })
+    }
+  } catch (err) {
+    console.error('error initStations', err)
+  }
+}
+
+module.exports.addTx = async function addTx (db, channels = 4) {
+  for (let i = 0; i < channels; i++) {
+    db.tx.push({
+      channel1gain: 0,
+      channel2gain: 0,
+      channel1mute: false,
+      channel2mute: false,
+      datarate: '',
+      enable: false,
+      format: '',
+      host: '',
+      interface: 'Auto',
+      meter1: 0,
+      meter2: 0,
+      multicastttl: 0,
+      port: 0,
+      protocol: '',
+      status: '',
+      statusled: false,
+      svsiaddress: '',
+      svsistream: 0
+    })
+  }
+}
+
+module.exports.addRx = async function addRx (db, channels = 4) {
+  for (let i = 0; i < channels; i++) {
+    db.rx.push({
+      channel1gain: 0,
+      channel2gain: 0,
+      channel1mute: false,
+      channel2mute: false,
+      enable: false,
+      url: '',
+      interface: 'Auto',
+      channel1peaklevel: 0,
+      channel2peaklevel: 0,
+      netcache: 0,
+      status: '',
+      statusled: false
+    })
+  }
+}
+
+module.exports.removeQsysItems = async function removeQsysItems (db, name, channels) {
+  const ref = db[name].length - channels
+  for (let i = 0; i < ref; i++) {
+    await db[name].id(db[name][db[name].length - 1]._id).remove()
+  }
+}
