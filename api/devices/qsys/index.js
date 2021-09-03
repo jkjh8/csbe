@@ -143,6 +143,42 @@ function updateStations (arr, obj) {
 }
 
 // default data
+const rxControls = [
+  'channel.1.gain',
+  'channel.2.gain',
+  'channel.1.muten',
+  'channel.2.muten',
+  'enable',
+  'url',
+  'interface',
+  'channel.1.peaklevel',
+  'channel.2.peaklevel',
+  'netcache',
+  'status',
+  'status.led'
+]
+
+const txControls = [
+  'channel.1.gain',
+  'channel.2.gain',
+  'channel.1.mute',
+  'channel.2.mute',
+  'datarate',
+  'enable',
+  'format',
+  'host',
+  'interface',
+  'meter.1',
+  'meter.2',
+  'multicast.ttl',
+  'port',
+  'protocol',
+  'status',
+  'status.led',
+  'svsi.address',
+  'svsi.stream'
+]
+
 function getStationControlNames (channels) {
   const controlNames = [
     'mode','priority','archive','busy','ready','speak.now','split','state.raw','status.text'
