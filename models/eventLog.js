@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { searchArrToStr, makeSearchField } = require('../api/tools')
 const mongoosePaginate = require('mongoose-paginate-v2')
 
 const logsSchema = new mongoose.Schema({
@@ -7,47 +8,21 @@ const logsSchema = new mongoose.Schema({
   priority: { type: String, required: true, default: 'low' }, //mid, high
   zones: { type: Array },
   message: { type: String, required: true },
-  createdAt: { type: Date, required: true, default: Date.now }
+  search: { type: String }
 }, {
   timestamps: true
 })
 logsSchema.index({ '$**': 'text' })
 logsSchema.plugin(mongoosePaginate)
 
+makeSearchField(logsSchema, 'search', (postDoc) => {
+  const arr = []
+  const { source = '', zones = [], message = '' } = postDoc
+  arr.push(source)
+  arr.push(zones.join(','))
+  arr.push(message)
+  return searchArrToStr(arr)
+})
+
 const Logs = mongoose.model('Logs', logsSchema)
 module.exports = Logs
-
-
-// module.exports = (sequelize, DataTypes) => {
-//   return sequelize.define('Logs', {
-//     id: {
-//       type: DataTypes.UUID,
-//       defaultValue: DataTypes.UUIDV4,
-//       allowNull: false,
-//       primaryKey: true,
-//       unique: true
-//     },
-//     source: {
-//       type: DataTypes.STRING(255),
-//       allowNull: false
-//     },
-//     category: {
-//       type: DataTypes.STRING(16),
-//       defaultValue: 'info'
-//     },
-//     priority: {
-//       type: DataTypes.STRING(16),
-//       defaultValue: 'row'
-//     },
-//     zones: {
-//       type: DataTypes.STRING(512)
-//     },
-//     message: {
-//       type: DataTypes.STRING(512)
-//     }
-//   }, {
-//     charset: 'utf8',
-//     collate: 'utf8_unicode_ci',
-//     underscored: true
-//   })
-// }
