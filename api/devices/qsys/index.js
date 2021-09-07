@@ -103,109 +103,10 @@ async function updateZones (arr, obj) {
       }
     }
   })
-<<<<<<< HEAD
   //check active
   device.zone.forEach(e => {
     if (e.Name.match(/zone.\d+.active/)) {
       active.push(e)
-=======
-}
-
-// default data
-const rxControls = [
-  'channel.1.gain',
-  'channel.2.gain',
-  'channel.1.muten',
-  'channel.2.muten',
-  'enable',
-  'url',
-  'interface',
-  'channel.1.peaklevel',
-  'channel.2.peaklevel',
-  'netcache',
-  'status',
-  'status.led'
-]
-
-const txControls = [
-  'channel.1.gain',
-  'channel.2.gain',
-  'channel.1.mute',
-  'channel.2.mute',
-  'datarate',
-  'enable',
-  'format',
-  'host',
-  'interface',
-  'meter.1',
-  'meter.2',
-  'multicast.ttl',
-  'port',
-  'protocol',
-  'status',
-  'status.led',
-  'svsi.address',
-  'svsi.stream'
-]
-
-function getStationControlNames (channels) {
-  const controlNames = [
-    'mode','priority','archive','busy','ready','speak.now','split','state.raw','status.text'
-  ]
-  for (let i = 0; i < channels; i++) {
-    controlNames.push(`zone.select.${i + 1}`)
-  }
-  return controlNames
-}
-
-function getPAControlNames (channels) {
-  const controlNames = []
-  for (let i = 0; i < channels; i++) {
-    controlNames.push( `zone.${i + 1}.active`)
-    controlNames.push( `zone.${i + 1}.gain`)
-    controlNames.push( `zone.${i + 1}.mute`)
-    controlNames.push( `zone.${i + 1}.name`)
-    controlNames.push( `zone.${i + 1}.priority`)
-    controlNames.push( `zone.${i + 1}.source`)
-    controlNames.push( `zone.${i + 1}.message`)
-    controlNames.push( `zone.${i + 1}.message.gain`)
-    controlNames.push( `zone.${i + 1}.message.mute`)
-    controlNames.push( `zone.${i + 1}.page.gain`)
-    controlNames.push( `zone.${i + 1}.page.mute`)
-    controlNames.push( `zone.${i + 1}.bgm.gain`)
-  }
-  return controlNames
-}
-
-function getPAControlBgmNames (channels) {
-  const controlNames = []
-  for (let i = 0; i < channels; i++) {
-    controlNames.push( `bgm.router.select.${i + 1}`)
-  }
-  return controlNames
-}
-
-module.exports.addPA = function addPA (db, channels = 16) {
-  try {
-    for (let i = 0; i < channels; i++) {
-      db.zone.push({
-        channel: i + 1,
-        active: false,
-        gain: 0,
-        mute: false,
-        name: '0',
-        priority: 0,
-        source: 0,
-        squelch: 0,
-        squelchactive: false,
-        bgmgain: 0,
-        bgmchannel: 1,
-        pagegain: 0,
-        pagemute: false,
-        messagegain: 0,
-        messagemute: false
-      })
->>>>>>> 04d5f947e24e64b69a558fa4b49e84fae7955cf4
     }
   })
   const result = active.some(e => e.Value === true)
