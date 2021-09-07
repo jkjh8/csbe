@@ -1,6 +1,7 @@
 const QrcClient = require('qsys-qrc-client').default
 const { commands } = require('qsys-qrc-client')
 const Qsys = require('../../../models/qsys')
+const Devices = require('../../../models/devices')
 
 module.exports.createQsys = async (obj) => {
   const client = new QrcClient()
@@ -23,9 +24,34 @@ module.exports.createQsys = async (obj) => {
   client.connect({ host: obj.ipaddress, port: 1710 })
 }
 
+module.exports.editQsys = async (obj) => {
+  const client = new QrcClient()
+  client.socket.setTimeout(5000)
+  client.socket.on('connect', async () => {
+    const status = await client.send(commands.getStatus())
+    const zones = await client.send({ method: 'Component.GetControls', params: { Name: 'PA' } })
+    client.end()
+    let qsys = await Qsys.updateOne({
+      ipaddress: obj.ipaddress
+    }, { $set: status })
+    qsys = await Qsys.findOne({
+      ipaddress: obj.ipaddress
+    })
+    qsys.zone = []
+    zones.Controls.forEach(e => {
+      qsys.zone.push(e)
+    })
+    await qsys.save()
+  })
+  client.on('error', () => onError(obj, client))
+  client.socket.on('timeout', () => client.end())
+  client.connect({ host: obj.ipaddress, port: 1710 })
+}
+
 const onError = (obj, client) => {
-  console.errror(`Q-SYS IP: ${obj.ipaddress} 장비 정보 수집중 에러가 발생하였습니다.`)
+  console.error(`Q-SYS IP: ${obj.ipaddress} 장비 정보 수집중 에러가 발생하였습니다.`)
   client.end()
+  Devices.updateOne({ ipaddress: obj.ipaddress }, { $set: { status: false } }).exec()
 }
 
 module.exports.getStatus = async function getStatus (obj) {

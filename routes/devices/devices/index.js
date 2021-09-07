@@ -6,7 +6,7 @@ const Devices = require('../../../models/devices')
 const Barixes = require('../../../models/barixes')
 const Qsys = require('../../../models/qsys')
 const { check } = require('./functions')
-const { createQsys, getZones } =require('../../../api/devices/qsys')
+const { createQsys, editQsys } =require('../../../api/devices/qsys')
 
 router.use('/qsys', require('./qsys'))
 router.use('/barix', require('./barix'))
@@ -19,8 +19,6 @@ router.get('/', async function (req, res) {
     res.status(500).json({ status: 'error', data: err })
   }
 })
-
-
 
 router.post('/', async function (req, res) {
   const info = req.body
@@ -57,7 +55,7 @@ router.put('/', async function (req, res) {
 
     // qsys 확인
     if (info.type === 'QSys') {
-      getZones(info)
+      editQsys(info)
     }
 
     info.ckecked = true
