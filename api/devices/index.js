@@ -9,11 +9,20 @@ module.exports.get = async () => {
     if (device.type === 'Barix') {
       await barix.get(device.ipaddress)
     } else if (device.type === 'QSys') {
-      try {
-        qsys.paStatusUpdate(device.ipaddress)
-      } catch (error) {
-        returnError(device.ipaddress)
-      }
+      console.log(device.ipaddress)
+      qsys.updateZones(device)
+    //   try {
+    //     // qsys.paStatusUpdate(device.ipaddress)
+    //     // qsys.getZones(device)
+    //     const r = await Qsys.findOne({ ipaddress: device.ipaddress })
+    //     r.zone.forEach(e => {
+    //       if (e.Name.match(/zone.\d+.gain/)) {
+    //         console.log(e)
+    //       }
+    //     })
+    //   } catch (error) {
+    //     returnError(device.ipaddress)
+    //   }
     }
   })
 }
