@@ -12,15 +12,22 @@ router.get('/', async (req, res) => {
   }
 })
 
+async function check (info) {
+  let r = await Locations.findOne({ index: info.index })
+  if (r && r._id.toString() !== info._id) return '인덱스가 중복 되었습니다.'
+  r = await Locations.findOne({ name: info.name })
+  if (r && r._id.toString() !== info._id) return '지역 이름이 이미 존재합니다.'
+  r = await Locations.findOne({ ipaddress: info.ipaddress })
+  if (r && r._id.toString() !== info._id) return '디바이스가 중복 선택되었습니다.'
+return null
+}
+
 router.post('/', async (req, res) => {
   try {
-    console.log(req.body)
-    if (!req.body.port) return res.status(500).json({ message: 'Port를 확인해주세요.' })
-    let r = await Locations.findOne({ where: { index: req.body.index } })
-    if (r) return res.status(500).json({ message: 'Index가 중복 되었습니다.'})
-    r = await Locations.findOne({ where: { name: req.body.name } })
-    if (r) return res.status(500).json({ message: '이름이 중복되었습니다.'})
-    const c = new Locations(req.body)
+    const info = req.body
+    const checkDup = await check(info)
+    if (checkDup) return res.status(500).json({ message: checkDup })
+    const c = new Locations(info)
     r = await c.save()
     res.status(200).json(r)
   } catch (err) {
@@ -30,11 +37,11 @@ router.post('/', async (req, res) => {
 })
 
 router.put('/', async (req, res) => {
+  console.log(req.body)
   try {
-    let r = await Locations.findOne({ where: { index: req.body.index } })
-    if (r && r._id !== req.body._id) return res.status(500).json({ message: 'Index가 중복되었습니다.' })
-    r = await Locations.findOne({ where: { name: req.body.name } })
-    if (r && r._id !== req.body._id) return res.status(500).json({ message: '이름이 중복되었습니다.'})
+    const info = req.body
+    const checkDup = await check(info)
+    if (checkDup) return res.status(500).json({ message: checkDup })
     r = await Locations.updateOne({ _id: req.body._id }, { $set: req.body } )
     res.status(200).json(r)
   } catch (err) {

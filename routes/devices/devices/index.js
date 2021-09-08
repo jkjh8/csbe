@@ -37,7 +37,7 @@ router.post('/', async function (req, res) {
     const checkMessage = await check(info)
     if (checkMessage) return res.status(500).json({ message: checkMessage })
     // qsys 생성
-    if (info.type === 'QSys') { createQsys(info) }
+    if (info.type === 'QSys') { await createQsys(info) }
     // barix 생성 안함 데이터 갱신시 자동 등록
     // 디바이스 생성 및 저장
     const device = new Devices(info)
@@ -61,10 +61,9 @@ router.put('/', async function (req, res) {
     if (checkMessage) return res.status(500).json({ message: checkMessage })
 
     // qsys 확인
-    if (info.type === 'QSys') { editQsys(info) }
-    info.ckecked = true
+    if (info.type === 'QSys') { await createQsys(info) }
     const r = await Devices.updateOne({ _id: info._id }, { $set: info })
-    res.status(200).json({ data: r })
+    return res.status(200).json({ data: r })
   } catch (err) {
     res.status(500).json({ status: 'error', data: err, message: ' 알 수 없는 오류가 발생하였습니다.' })
   }

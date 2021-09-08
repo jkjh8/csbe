@@ -4,13 +4,11 @@ const locationSchema = new mongoose.Schema({
   index: { type: Number, unique: true },
   name: { type: String },
   type: { type: Number },
-  ip: { type: String },
-  port: { type: Number },
+  ipaddress: { type: String },
   status: { type: Boolean },
-  mode: { type: String },
+  type: { type: String },
   parent: { type: String },
-  channel: { type: Number },
-  info: {  type: Object }
+  channel: { type: Number }
 }, {
   timestamps: true
 })

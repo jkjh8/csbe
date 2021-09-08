@@ -61,9 +61,9 @@ devices.get()
 // require('./api/devices/barix')
 // require('./api/devices/qsys')
 
-const Log = require('./models/eventlog')
-const Hangul = require('hangul-js')
-const searchStr = Hangul.disassembleToString('서')
-Log.find({ search: null }, function (err, res) {
-  console.log(res)
-})
+// const Log = require('./models/eventlog')
+// const Hangul = require('hangul-js')
+// const searchStr = Hangul.disassembleToString('서')
+// Log.find({ search: null }, function (err, res) {
+//   console.log(res)
+// })
