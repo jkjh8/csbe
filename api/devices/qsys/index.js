@@ -73,14 +73,26 @@ async function updateStatus(client, obj) {
 }
 
 async function createZones (client, obj) {
-  const db = await Qsys.findOne({ ipaddress: obj.ipaddress })
-  if (db) {
-    const zones = await client.send({ method: 'Component.GetControls', params: { Name: 'PA' } })
-    db.zone = []
-    zones.Controls.forEach(e => db.zone.push(e))
-    await db.save()
-  } else {
-    console.log(`${obj.ipaddress} 디바이스를 찾을 수 없습니다.`)
+  try {
+    const qsys = await Qsys.findOne({ ipaddress: obj.ipaddress })
+    if (qsys) {
+      const zones = await client.send({ method: 'Component.GetControls', params: { Name: 'PA' } })
+      qsys.zone = []
+      const channels = []
+      zones.Controls.forEach(e => {
+        qsys.zone.push(e)
+        if (e.Name.match(/zone.\d+.gain/)) {
+          channels.push(e)
+        }
+      })
+      await qsys.save()
+      // check channel
+      await Devices.updateOne({ ipaddress: obj.ipaddress }, { $set: { channels: channels.length } })
+    } else {
+      console.log(`${obj.ipaddress} 디바이스를 찾을 수 없습니다.`)
+    }
+  } catch (err) {
+    console.error('Create Zones Error', err)
   }
 }
 
