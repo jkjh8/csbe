@@ -73,7 +73,18 @@ router.get('/delete', async (req, res) => {
   try {
     let r = await Devices.deleteOne({ ipaddress: req.query.ipaddress })
     await deleteDevices(req.query)
-    res.status(200).json(r)
+    res.status(200).json({ result: r })
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ error: err, message: '알 수 없는 오류가 발생하였습니다.'})
+  }
+})
+
+router.get('/checked', async (req, res) => {
+  try {
+    const info = req.query
+    const r = await Devices.updateOne({ _id: info._id }, { $set: { checked: true } })
+    res.status(200).json({ result: r })
   } catch (err) {
     console.log(err)
     res.status(500).json({ error: err, message: '알 수 없는 오류가 발생하였습니다.'})

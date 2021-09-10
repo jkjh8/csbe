@@ -8,6 +8,7 @@ const zonesSchema = new mongoose.Schema({
   device: { type: Object },
   channel: { type: Number },
   status: { type: Boolean },
+  check: { type: Boolean, default: false },
   // timestamp
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

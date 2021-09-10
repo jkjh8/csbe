@@ -156,7 +156,7 @@ const onError = (e, obj, client) => {
     client.end()
   }
   console.error(`Q-SYS IP: ${obj.ipaddress} 장비 정보 수집중 에러가 발생하였습니다.`, e)
-  Devices.updateOne({ ipaddress: obj.ipaddress }, { $set: { status: false } }).exec()
+  Devices.updateMany({ ipaddress: obj.ipaddress }, { $set: { status: false } }).exec()
 }
 
 module.exports.checkActive = async function checkActive(obj) {
@@ -173,7 +173,7 @@ module.exports.checkActive = async function checkActive(obj) {
   return result
 }
 
-module.exports.setTxAddress = async (ipaddress, channel, value) => {
+const setTxAddress = async (ipaddress, channel, value) => {
   const client = new QrcClient()
   client.socket.on('connect', async () => {
     const txSocket = [
@@ -185,7 +185,32 @@ module.exports.setTxAddress = async (ipaddress, channel, value) => {
     console.log(rt)
     return rt
   })
-  client.on('error', (e) => onError(e, obj, client))
+  client.on('error', (e) => onError(e, client))
   client.socket.on('timeout', () => client.end())
   client.connect({ host: ipaddress, port: 1710 })
+}
+module.exports.setTxAddress = setTxAddress
+
+module.exports.qsysTxDub = async (info) => {
+  const qsys = await Qsys.find().select({ ipaddress: 1, tx: 1 })
+  for (let i = 0; i < qsys.length; i++) {
+    for (let j = 0; j < qsys[i].tx.length; j++) {
+      for (let n = 0; n < qsys[i].tx[j].length; n++) {
+        if (qsys[i].tx[j][n].Name === 'host') {
+          if (qsys[i].tx[j][n].String === info.device.ipaddress) {
+            if (info.device.ipaddress === qsys[i].ipaddress && info.channel === (j + 1)) {
+              console.log('pass')
+            } else {
+              console.log(`ipaddress=${qsys[i].ipaddress}, channel=${j+1}`)
+              await setTxAddress(qsys[i].ipaddress,  j + 1, ' ')
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+module.exports.qsysTxClear = async (info) => {
+  console.log(info)
 }
