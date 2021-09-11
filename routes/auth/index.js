@@ -16,6 +16,8 @@ const saltRounds = 10
 
 dotenv.config({ path: path.join(__dirname, '../../.env') })
 
+router.use('/users', require('./users'))
+
 router.post('/register', async function (req, res) {
   try {
     const user = await Users.findOne({ userId: req.body.userId})
