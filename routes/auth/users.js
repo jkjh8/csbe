@@ -8,4 +8,17 @@ router.get('/', async (req, res) => {
   res.status(200).json({ users: users })
 })
 
+router.get(`/admin`, async (req, res) => {
+  try {
+    const id = req.query.id
+    const r = await Users.updateOne({
+      _id: id
+    }, {
+      $set: { admin: true }
+    })
+  } catch (err) {
+    res.status(500).json({ data: err, message: '알 수 없는 에러가 발생하였습니다' })
+  }
+})
+
 module.exports = router
