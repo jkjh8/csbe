@@ -45,6 +45,7 @@ router.post('/', async function (req, res) {
       return res.status(200).json({ data: doc })
     }).catch( async (err) => {
       await deleteDevices(info)
+      console.error(err)
       return res.status(500).json({ message: '데이터 베이스 오류가 발생하였습니다.', data: err })
     })
   } catch (err) {

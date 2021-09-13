@@ -10,12 +10,14 @@ router.get('/', async (req, res) => {
 
 router.get(`/admin`, async (req, res) => {
   try {
-    const id = req.query.id
+    const { id, value } = req.query
+    console.log(id, value)
     const r = await Users.updateOne({
       _id: id
     }, {
-      $set: { admin: true }
+      $set: { admin: value }
     })
+    res.status(200).json({ data: r })
   } catch (err) {
     res.status(500).json({ data: err, message: '알 수 없는 에러가 발생하였습니다' })
   }
