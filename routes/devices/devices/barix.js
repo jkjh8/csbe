@@ -1,10 +1,10 @@
 
 const express = require('express')
 const router = express.Router()
-const Devices = require('../../../models/devices')
-const Barixes = require('../../../models/barixes')
-const Qsys = require('../../../models/qsys')
-const qsys = require('../../../api/devices/qsys')
+const Devices = require('models/devices')
+const Barixes = require('models/barixes')
+const Qsys = require('models/qsys')
+const qsys = require('api/devices/qsys')
 
 router.get('/', async function (req, res) {
   try {

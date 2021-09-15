@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Zones = require('../../models/zones')
-// const Qsys = require('../../models/qsys')
+const Qsys = require('../../models/qsys')
 const { qsysTxDub, setTxAddress, qsysTxClear } = require('../../api/devices/qsys')
 
 router.get('/', async (req, res) => {
@@ -17,6 +17,22 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.log(err)
     res.status(500).json({ error: err })
+  }
+})
+
+router.get('/status', async (req, res) => {
+  try {
+    const r = await Zones.aggregate([{
+      $lookup: {
+        from: 'Qsys',
+        localField: 'parent.ipaddress',
+        foreignField: 'ipaddress',
+        as: 'qsys'
+      }
+    }])
+    res.status(200).json(r)
+  } catch (err) {
+    res.status(500).json({ message: 'error' })
   }
 })
 

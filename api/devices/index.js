@@ -10,7 +10,7 @@ module.exports.get = async () => {
       await barix.get(device.ipaddress)
     } else if (device.type === 'QSys') {
       console.log(device.ipaddress)
-      qsys.updateZones(device)
+      qsys.createQsys(device)
     //   try {
     //     // qsys.paStatusUpdate(device.ipaddress)
     //     // qsys.getZones(device)

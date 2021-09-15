@@ -6,6 +6,7 @@ const locationSchema = new mongoose.Schema({
   type: { type: Number },
   ipaddress: { type: String },
   status: { type: Boolean },
+  active: { type: String },
   type: { type: String },
   parent: { type: String },
   channel: { type: Number }

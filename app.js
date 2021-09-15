@@ -9,6 +9,9 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const passport = require('passport')
 
+// 가변 경로 설정
+require('app-module-path').addPath(__dirname)
+
 //DB model sync
 require('./api/db')
 // const sequelize = require('./models').sequelize
@@ -55,6 +58,7 @@ server.listen(port, () => {
 })
 
 const devices = require('./api/devices')
+const { addPath } = require('app-module-path')
 devices.get()
 // require('./api/devices/checkBarix')
 // require('./api/return/status')

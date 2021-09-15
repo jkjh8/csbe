@@ -39,7 +39,7 @@ async function http (address) {
   }
 }
 module.exports.http = http
-module.exports.get = async (ipaddress) => {
+module.exports.getBarix = async (ipaddress) => {
   try {
     const deviceInfo = await http(ipaddress)
     if (deviceInfo) {
@@ -70,83 +70,89 @@ async function statusFail(ipaddress) {
 }
 
 async function updateInstreamer (info) {
-  const r = await Barixes.updateOne({
+  const r = await Devices.updateOne({
     ipaddress: info.network.ip
   }, {
     $set: {
-      fwname: info.hardware.fwname,
-      uptime: parseInt(info.hardware.uptime),
-      ticks: parseInt(info.hardware.ticks),
-      status: info.status.status,
-      hardware: {
-        hwtype: info.hardware.hwtype,
-        ipamtype: info.hardware.ipamtype,
-        mac: info.hardware.mac,
-        fw: info.hardware.fw
-      },
-      network: {
-        ip: info.network.ip,
-        netmask: info.network.netmask,
-        gateway: info.network.gateway
-      },
-      audio: {
-        inputleft: parseInt(info.status.audioinputleft),
-        inputright: parseInt(info.status.audioinputright),
-        outputleft: parseInt(info.status.audiooutputleft),
-        outputright: parseInt(info.status.audiooutputright)
-      },
-      streaming: {
-        stream1: info.streaming.stream1,
-        stream2: info.streaming.stream2,
-        stream3: info.streaming.stream3,
-        stream4: info.streaming.stream4,
-        stream5: info.streaming.stream5,
-        stream6: info.streaming.stream6,
-        stream7: info.streaming.stream7,
-        stream8: info.streaming.stream8
+      status: true,
+      detail: {
+        fwname: info.hardware.fwname,
+        uptime: parseInt(info.hardware.uptime),
+        ticks: parseInt(info.hardware.ticks),
+        status: info.status.status,
+        hardware: {
+          hwtype: info.hardware.hwtype,
+          ipamtype: info.hardware.ipamtype,
+          mac: info.hardware.mac,
+          fw: info.hardware.fw
+        },
+        network: {
+          ip: info.network.ip,
+          netmask: info.network.netmask,
+          gateway: info.network.gateway
+        },
+        audio: {
+          inputleft: parseInt(info.status.audioinputleft),
+          inputright: parseInt(info.status.audioinputright),
+          outputleft: parseInt(info.status.audiooutputleft),
+          outputright: parseInt(info.status.audiooutputright)
+        },
+        streaming: {
+          stream1: info.streaming.stream1,
+          stream2: info.streaming.stream2,
+          stream3: info.streaming.stream3,
+          stream4: info.streaming.stream4,
+          stream5: info.streaming.stream5,
+          stream6: info.streaming.stream6,
+          stream7: info.streaming.stream7,
+          stream8: info.streaming.stream8
+        }
       }
     }
   }, { upsert: true })
 }
 
 async function updateExtreamer (info) {
-  const r = await Barixes.updateOne({
+  const r = await Devices.updateOne({
     ipaddress: info.network.ip
   }, {
     $set: {
-      fwname: info.hardware.fwname,
-      uptime: info.hardware.uptime,
-      ticks: parseInt(info.hardware.ticks),
-      status: info.status.status,
-      hardware: {
-        hwtype: info.hardware.hwtype,
-        ipamtype: info.hardware.ipamtype,
-        mac: info.hardware.mac,
-        fw: info.hardware.fw
-      },
-      network: {
-        ip: info.network.ip,
-        netmask: info.network.netmask,
-        gateway: info.network.gateway
-      },
-      audio: {
-        outputleft: parseInt(info.status.audiooutputleft),
-        outputright: parseInt(info.status.audiooutputright)
-      },
-      streaming: {
-        stream1: info.streaming.url1,
-        stream2: info.streaming.url2,
-        stream3: info.streaming.url3
-      },
-      io: {
-        relay1: info.status.relay1,
-        relay2: info.status.relay2,
-        relay3: info.status.relay3,
-        relay4: info.status.relay4,
-        relay5: info.status.relay5,
-        relay6: info.status.relay6,
-        relay7: info.status.relay7,
-        relay8: info.status.relay8
+      status: true,
+      detail: {
+        fwname: info.hardware.fwname,
+        uptime: info.hardware.uptime,
+        ticks: parseInt(info.hardware.ticks),
+        status: info.status.status,
+        hardware: {
+          hwtype: info.hardware.hwtype,
+          ipamtype: info.hardware.ipamtype,
+          mac: info.hardware.mac,
+          fw: info.hardware.fw
+        },
+        network: {
+          ip: info.network.ip,
+          netmask: info.network.netmask,
+          gateway: info.network.gateway
+        },
+        audio: {
+          outputleft: parseInt(info.status.audiooutputleft),
+          outputright: parseInt(info.status.audiooutputright)
+        },
+        streaming: {
+          stream1: info.streaming.url1,
+          stream2: info.streaming.url2,
+          stream3: info.streaming.url3
+        },
+        io: {
+          relay1: info.status.relay1,
+          relay2: info.status.relay2,
+          relay3: info.status.relay3,
+          relay4: info.status.relay4,
+          relay5: info.status.relay5,
+          relay6: info.status.relay6,
+          relay7: info.status.relay7,
+          relay8: info.status.relay8
+        }
       }
     }
   }, { upsert: true })

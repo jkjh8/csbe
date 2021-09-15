@@ -15,7 +15,8 @@ const qsysDataSchema = new mongoose.Schema({
 })
 
 const qsysSchema = new mongoose.Schema({
-  ipaddress: { type: String, unique: true, required: true },
+  // ipaddress: { type: String, unique: true, required: true },
+  ipaddress: { type: String },
   channels: { type: Number, default: 16 },
   bgmchannel: { type: Number, default: 4 },
   stations: { type: Number, default: 4 },
@@ -26,11 +27,10 @@ const qsysSchema = new mongoose.Schema({
   IsRedundant: { type: Boolean },
   IsEmulator: { type: Boolean },
   Status: { type: Object },
-  active: { type: Boolean },
-  zone:[qsysDataSchema],
-  stations: [[qsysDataSchema]],
-  tx:[[qsysDataSchema]],
-  rx:[[qsysDataSchema]],
+  active: { type: Array },
+  zoneGain:{ type: Array },
+  zoneMute: { type: Array },
+  presence: { type: Array },
   failedAt: { type: Date }
 }, {
   timestamps: true

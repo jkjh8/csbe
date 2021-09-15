@@ -1,10 +1,30 @@
 const express = require('express')
 const router = express.Router()
-const Locations = require('../../models/location')
+const Locations = require('models/location')
+const Devices = require('models/devices')
 
 router.get('/', async (req, res) => {
   try {
-    const r = await Locations.find({})    
+    const r = await Locations.aggregate([
+      {
+        $addFields: { location_id: { $toString: '$_id' }}
+      },
+      {
+        $lookup: {
+          from: 'devices',
+          localField: 'location_id',
+          foreignField: 'parent_id',
+          as: 'device'
+        }
+      },
+      {
+        $addFields: {
+          device: {
+            $arrayElemAt: ['$device', 0]
+          }
+        }
+      }
+    ])    
     return res.status(200).json({ data: r })
   } catch (err) {
     console.log(err)
@@ -37,11 +57,16 @@ router.post('/', async (req, res) => {
 })
 
 router.put('/', async (req, res) => {
-  console.log(req.body)
   try {
     const info = req.body
+    console.log(typeof info._id)
     const checkDup = await check(info)
     if (checkDup) return res.status(500).json({ message: checkDup })
+
+    r = await Devices.updateOne({
+      ipaddress: info.ipaddress
+    }, { $set: { parent_id: info._id } })
+    console.log(r)
     r = await Locations.updateOne({ _id: req.body._id }, { $set: req.body } )
     res.status(200).json(r)
   } catch (err) {

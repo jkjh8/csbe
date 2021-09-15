@@ -6,11 +6,11 @@ const Devices = require('../../../models/devices')
 module.exports.createQsys = async (obj) => {
   const client = new QrcClient()
   client.socket.on('connect', async () => {
-    await checkRxTx(client, obj)
+    // await checkRxTx(client, obj)
     await updateStatus(client, obj)
     await createZones(client, obj)
-    await updateRx(client, obj)
-    await updateTx(client, obj)
+    // await updateRx(client, obj)
+    // await updateTx(client, obj)
     client.end()
   })
   client.on('error', (e) => onError(e, obj, client))
@@ -30,40 +30,43 @@ module.exports.updateZones = async (obj) => {
   client.connect({ host: obj.ipaddress, port: 1710 })
 }
 
-async function checkRxTx(client, obj) {
-  try {
-    const device = await Devices.findOne({ ipaddress: obj.ipaddress })
-    const controls = await client.send(commands.getComponents())
-    const stations = []
-    const rx = []
-    const tx = []
-    controls.forEach(e => {
-      if (e.Name.match(/RX\d+/)) {
-        rx.push(e)
-      }
-      if (e.Name.match(/TX\d+/)) {
-        tx.push(e)
-      }
-      if (e.Name.match(/Station\d+/)) {
-        stations.push(e)
-      }
-    })
-    device.tx = tx.length
-    device.rx = rx.length
-    device.stations = stations.length
-    await device.save()
-  } catch (err) {
-    console.error(err)
-  }
-}
+// async function checkRxTx(client, obj) {
+//   try {
+//     const device = await Devices.findOne({ ipaddress: obj.ipaddress })
+//     const controls = await client.send(commands.getComponents())
+//     const stations = []
+//     const rx = []
+//     const tx = []
+//     controls.forEach(e => {
+//       if (e.Name.match(/RX\d+/)) {
+//         rx.push(e)
+//       }
+//       if (e.Name.match(/TX\d+/)) {
+//         tx.push(e)
+//       }
+//       if (e.Name.match(/Station\d+/)) {
+//         stations.push(e)
+//       }
+//     })
+//     device.tx = tx.length
+//     device.rx = rx.length
+//     device.stations = stations.length
+//     await device.save()
+//   } catch (err) {
+//     console.error(err)
+//   }
+// }
 
 async function updateStatus(client, obj) {
   try {
     const status = await client.send(commands.getStatus())
-    const r = await await Qsys.updateOne({
+    const r = await Devices.updateOne({
       ipaddress: obj.ipaddress
       }, {
-        $set: status
+        $set: {
+          detail: status,
+          status: true
+        }
       }, {
         upsert: true
       })
@@ -74,23 +77,36 @@ async function updateStatus(client, obj) {
 
 async function createZones (client, obj) {
   try {
-    const qsys = await Qsys.findOne({ ipaddress: obj.ipaddress })
-    if (qsys) {
-      const zones = await client.send({ method: 'Component.GetControls', params: { Name: 'PA' } })
-      qsys.zone = []
-      const channels = []
-      zones.Controls.forEach(e => {
-        qsys.zone.push(e)
-        if (e.Name.match(/zone.\d+.gain/)) {
-          channels.push(e)
-        }
-      })
-      await qsys.save()
-      // check channel
-      await Devices.updateOne({ ipaddress: obj.ipaddress }, { $set: { channels: channels.length } })
-    } else {
-      console.log(`${obj.ipaddress} 디바이스를 찾을 수 없습니다.`)
-    }
+    const zones = await client.send({ method: 'Component.GetControls', params: { Name: 'PA' } })
+    const gain = []
+    const mute = []
+    const active = []
+    zones.Controls.forEach(e => {
+      if (e.Name.match(/zone.\d+.gain/)) {
+        const channel = e.Name.replace(/[^0-9]/g, '')
+        gain[channel - 1] = e.Value
+      }
+      if (e.Name.match(/zone.\d+.mute/)) {
+        const channel = e.Name.replace(/[^0-9]/g, '')
+        mute[channel - 1] = e.Value
+      }
+      if (e.Name.match(/zone.\d+.active/)) {
+        const channel = e.Name.replace(/[^0-9]/g, '')
+        active[channel - 1] = e.Value
+      }
+    })
+    console.log(gain, mute, active)
+    // check channel
+    await Devices.updateOne({
+      ipaddress: obj.ipaddress
+    }, {
+      $set: {
+        channels: gain.length,
+        gain: gain,
+        mute: mute,
+        active: active
+      }
+    })
   } catch (err) {
     console.error('Create Zones Error', err)
   }
