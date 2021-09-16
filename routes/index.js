@@ -10,6 +10,5 @@ router.use('/eventlog', require('./eventlog'))
 // router.use('/sensors', require('./devices/barix'))
 router.use('/devices', require('./devices'))
 router.use('/locations', require('./locations'))
-router.use('/zones', require('./zones'))
 
 module.exports = router

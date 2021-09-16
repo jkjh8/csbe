@@ -3,31 +3,31 @@ const router = express.Router()
 const Locations = require('models/location')
 const Devices = require('models/devices')
 
+// router.get('/', async (req, res) => {
+//   try {
+//     const r = await Locations.aggregate([
+//       { $addFields: { location_id: { $toString: '$_id' } } },
+//       { $lookup: { from: 'devices', localField: 'location_id', foreignField: 'location_id', as: 'device' } },
+//       { $addFields: { device: { $arrayElemAt: ['$device', 0] } } }
+//     ])    
+//     res.status(200).json(r)
+//   } catch (err) {
+//     console.log(err)
+//     res.status(500).json({ error: err })
+//   }
+// })
+
 router.get('/', async (req, res) => {
   try {
     const r = await Locations.aggregate([
-      {
-        $addFields: { location_id: { $toString: '$_id' }}
-      },
-      {
-        $lookup: {
-          from: 'devices',
-          localField: 'location_id',
-          foreignField: 'parent_id',
-          as: 'device'
-        }
-      },
-      {
-        $addFields: {
-          device: {
-            $arrayElemAt: ['$device', 0]
-          }
-        }
-      }
-    ])    
-    return res.status(200).json({ data: r })
+      { $addFields: { location_id: { $toString: '$_id' } } },
+      { $lookup: { from: 'devices', localField: 'location_id', foreignField: 'parent_id', as: 'children' } },
+      { $lookup: { from: 'devices', localField: 'location_id', foreignField: 'location_id', as: 'device' } },
+      { $addFields: { device: { $arrayElemAt: ['$device', 0] } } }
+    ])
+    res.status(200).json(r)
   } catch (err) {
-    console.log(err)
+    console.error(err)
     res.status(500).json({ error: err })
   }
 })
@@ -59,7 +59,6 @@ router.post('/', async (req, res) => {
 router.put('/', async (req, res) => {
   try {
     const info = req.body
-    console.log(typeof info._id)
     const checkDup = await check(info)
     if (checkDup) return res.status(500).json({ message: checkDup })
 

@@ -9,7 +9,15 @@ const { getBarix } = require('api/devices/barix')
 
 router.get('/', async function (req, res) {
   try {
-    const r = await Devices.find()
+    const { id } = req.query
+
+    console.log(id)
+
+    const search = {}
+    if (id && id !== 'undefined') {
+      search['parent_id'] = id
+    }
+    const r = await Devices.find(search).sort({ _id: 1, channel: 1 })
     res.status(200).json({ data: r })
   } catch (err) {
     res.status(500).json({ status: 'error', data: err })
@@ -23,17 +31,13 @@ router.post('/', async function (req, res) {
     const checkMessage = await check(info)
     if (checkMessage) return res.status(500).json({ message: checkMessage })
     // qsys 생성
-    if (info.type === 'QSys') { await createQsys(info) }
-    if (info.type === 'Barix') { await getBarix(info.ipaddress)}
     // barix 생성 안함 데이터 갱신시 자동 등록
     // 디바이스 생성 및 저장
     const device = new Devices(info)
-    device.save().then(async (doc) => {
-      return res.status(200).json({ data: doc })
-    }).catch( async (err) => {
-      console.error(err)
-      return res.status(500).json({ message: '데이터 베이스 오류가 발생하였습니다.', data: err })
-    })
+    const r = await device.save()
+    res.status(200).json({ doc: r })
+    if (r.type === 'QSys') { await createQsys(r) }
+    if (r.type === 'Barix') { await getBarix(r) }
   } catch (err) {
     console.log(err)
     res.status(500).json({ data: err, message: '알 수 없는 오류가 발생하였습니다.' })
@@ -46,13 +50,10 @@ router.put('/', async function (req, res) {
     // 중복확인
     const checkMessage = await check(info)
     if (checkMessage) return res.status(500).json({ message: checkMessage })
-
-    // qsys 확인
-    if (info.type === 'QSys') { await createQsys(info) }
-    if (info.type === 'Barix') { await getBarix(info.ipaddress)}
-
     const r = await Devices.updateOne({ _id: info._id }, { $set: info })
-    return res.status(200).json({ data: r })
+    res.status(200).json({ data: r })
+    if (info.type === 'QSys') { await createQsys(info) }
+    if (info.type === 'Barix') { await getBarix(info)}
   } catch (err) {
     res.status(500).json({ status: 'error', data: err, message: ' 알 수 없는 오류가 발생하였습니다.' })
   }
