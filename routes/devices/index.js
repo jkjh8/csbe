@@ -15,7 +15,7 @@ router.get('/', async function (req, res) {
 
     const search = {}
     if (id && id !== 'undefined') {
-      search['parent_id'] = id
+      search['location_id'] = id
     }
     const r = await Devices.find(search).sort({ _id: 1, channel: 1 })
     res.status(200).json({ data: r })
