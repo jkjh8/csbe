@@ -21,8 +21,8 @@ router.get('/', async (req, res) => {
   try {
     const r = await Locations.aggregate([
       { $addFields: { location_id: { $toString: '$_id' } } },
-      { $lookup: { from: 'devices', localField: 'location_id', foreignField: 'parent_id', as: 'children' } },
-      { $lookup: { from: 'devices', localField: 'location_id', foreignField: 'location_id', as: 'device' } },
+      { $lookup: { from: 'devices', localField: 'location_id', foreignField: 'location_id', as: 'children' } },
+      { $lookup: { from: 'devices', localField: 'ipaddress', foreignField: 'ipaddress', as: 'device' } },
       { $addFields: { device: { $arrayElemAt: ['$device', 0] } } }
     ])
     res.status(200).json(r)

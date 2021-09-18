@@ -7,7 +7,7 @@ module.exports.get = async () => {
   const devices = await Devices.find()
   devices.forEach(async (device) => {
     if (device.type === 'Barix') {
-      await barix.get(device.ipaddress)
+      await barix.getBarix(device)
     } else if (device.type === 'QSys') {
       console.log(device.ipaddress)
       qsys.createQsys(device)
