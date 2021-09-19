@@ -1,6 +1,6 @@
 const Devices = require('models/devices')
-const Qsys = require('models/qsys')
-const qsys = require('api/devices/qsys')
+// const Qsys = require('models/qsys')
+// const qsys = require('api/devices/qsys')
 
 module.exports.check = async (obj) => {
   try {

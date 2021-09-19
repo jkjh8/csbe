@@ -1,6 +1,6 @@
 const QrcClient = require('qsys-qrc-client').default
 const { commands } = require('qsys-qrc-client')
-const Qsys = require('../../../models/qsys')
+// const Qsys = require('../../../models/bak/qsys')
 const Devices = require('../../../models/devices')
 
 module.exports.createQsys = async (obj) => {

@@ -1,7 +1,7 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
 const Devices = require('../../../models/devices')
-const Barixes = require('../../../models/barixes')
+// const Barixes = require('../../../models/bak/barixes')
 
 
 

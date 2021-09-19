@@ -1,5 +1,5 @@
 const Devices = require('../../models/devices')
-const Qsys = require('../../models/qsys')
+// const Qsys = require('../../models/bak/qsys')
 const barix = require('./barix')
 const qsys = require('./qsys')
 
