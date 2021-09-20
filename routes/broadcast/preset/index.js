@@ -7,12 +7,12 @@ router.get('/', async function (req, res) {
   try {
     const { user_id } = req.query
 
-    const search = { type: 'global' }
+    const search = [{ type: 'global' }]
     if (user_id && user_id !== 'undefined') {
-      search['user_id'] = user_id
+      search.push({ user_id: user_id })
     }
     console.log(search)
-    const r = await ZonePreset.find(search)
+    const r = await ZonePreset.find({ $or: search })
     res.status(200).json(r)
   } catch (err) {
     res.status(500).json({ status: 'error', data: err })
