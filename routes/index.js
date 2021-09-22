@@ -6,6 +6,7 @@ router.get('/', (req, res, next) => {
 })
 
 router.use('/auth', require('./auth'))
+router.use('/files', require('./files'))
 router.use('/broadcast', require('./broadcast'))
 router.use('/eventlog', require('./eventlog'))
 // router.use('/sensors', require('./devices/barix'))

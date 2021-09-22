@@ -35,6 +35,9 @@ app.use(cookieParser())
 app.use(require('morgan')('dev')) //debuger
 app.use(express.static(path.join(__dirname, 'public')))
 
+global.filesPath = path.join(__dirname, 'files')
+app.use('/files', express.static('filesPath'))
+
 //load router
 app.use('/', require('./routes'))
 
@@ -58,7 +61,6 @@ server.listen(port, () => {
 })
 
 const devices = require('./api/devices')
-const { addPath } = require('app-module-path')
 devices.get()
 // require('./api/devices/checkBarix')
 // require('./api/return/status')

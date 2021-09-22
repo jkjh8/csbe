@@ -3,6 +3,7 @@
 .env
 node_modules
 public
+/files
 
 # Log files
 npm-debug.log*
