@@ -10,7 +10,6 @@ ffmpeg.setFfmpegPath(ffmpegPath)
 ffmpeg.setFfprobePath(ffprobePath)
 
 exports.getFiles = async (req, res) => {
-  console.log(req.query.link)
   const reqPath = path.join(filesPath, req.query.link)
   const files = []
   const f = await fs.readdirSync(reqPath, { withFileTypes: true })
@@ -22,12 +21,21 @@ exports.getFiles = async (req, res) => {
         type: 'directory',
         name: f[i].name
       })
-    } else if (new RegExp(/wav|mp3/g).test(f[i].name)) {
+    } else if (new RegExp(/.wav|.mp3/g).test(f[i].name)) {
       const fileInfo = await getFileInfo(f[i].name, reqPath)
       fileInfo['idx'] = i
+      fileInfo['src'] = req.query.link
       fileInfo['dir'] = false
       fileInfo['name'] = f[i].name
       fileInfo['type'] = 'audio'
+      files.push(fileInfo)
+    } else if (new RegExp(/.mp4|.mkv|.mov/g).test(f[i].name)) {
+      const fileInfo = await getFileInfo(f[i].name, reqPath)
+      fileInfo['idx'] = i
+      fileInfo['src'] = req.query.link
+      fileInfo['dir'] = false
+      fileInfo['name'] = f[i].name
+      fileInfo['type'] = 'video'
       files.push(fileInfo)
     }
   }

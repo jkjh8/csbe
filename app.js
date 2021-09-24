@@ -46,7 +46,7 @@ function makeMediaFolder () {
 }
 
 makeMediaFolder()
-app.use('/files', express.static('filesPath'))
+app.use('/media', express.static(filesPath))
 
 //load router
 app.use('/', require('./routes'))
