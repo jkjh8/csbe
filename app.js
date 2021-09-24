@@ -1,4 +1,5 @@
 const path = require('path')
+const fs = require('fs')
 const express = require('express')
 const app = express()
 const http = require('http')
@@ -35,7 +36,16 @@ app.use(cookieParser())
 app.use(require('morgan')('dev')) //debuger
 app.use(express.static(path.join(__dirname, 'public')))
 
+// 미디어 폴더 확인 및 생성
 global.filesPath = path.join(__dirname, 'files')
+
+function makeMediaFolder () {
+  if(!fs.existsSync(filesPath)) {
+    fs.mkdirSync(filesPath)
+  }
+}
+
+makeMediaFolder()
 app.use('/files', express.static('filesPath'))
 
 //load router
