@@ -1,7 +1,10 @@
+/** @format */
+
 const express = require('express')
 const router = express.Router()
 
 router.use('/preset', require('./preset'))
+router.use('/tts', require('./tts'))
 
 // const Locations = require('models/location')
 // const Devices = require('models/devices')
@@ -12,7 +15,7 @@ router.use('/preset', require('./preset'))
 //       { $addFields: { location_id: { $toString: '$_id' } } },
 //       { $lookup: { from: 'devices', localField: 'location_id', foreignField: 'location_id', as: 'device' } },
 //       { $addFields: { device: { $arrayElemAt: ['$device', 0] } } }
-//     ])    
+//     ])
 //     res.status(200).json(r)
 //   } catch (err) {
 //     console.log(err)
