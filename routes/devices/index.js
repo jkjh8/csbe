@@ -1,3 +1,4 @@
+/** @format */
 
 const express = require('express')
 const router = express.Router()
@@ -24,6 +25,16 @@ router.get('/', async function (req, res) {
   }
 })
 
+router.get('/info', async function (req, res) {
+  try {
+    const { id } = req.query
+    const r = await Devices.findById(id)
+    res.status(200).json(r)
+  } catch (error) {
+    res.status(500).json({ status: 'error', data: err })
+  }
+})
+
 router.post('/', async function (req, res) {
   const info = req.body
   try {
@@ -36,11 +47,17 @@ router.post('/', async function (req, res) {
     const device = new Devices(info)
     const r = await device.save()
     res.status(200).json({ doc: r })
-    if (r.type === 'QSys') { await createQsys(r) }
-    if (r.type === 'Barix') { await getBarix(r) }
+    if (r.type === 'QSys') {
+      await createQsys(r)
+    }
+    if (r.type === 'Barix') {
+      await getBarix(r)
+    }
   } catch (err) {
     console.log(err)
-    res.status(500).json({ data: err, message: '알 수 없는 오류가 발생하였습니다.' })
+    res
+      .status(500)
+      .json({ data: err, message: '알 수 없는 오류가 발생하였습니다.' })
   }
 })
 
@@ -52,10 +69,20 @@ router.put('/', async function (req, res) {
     if (checkMessage) return res.status(500).json({ message: checkMessage })
     const r = await Devices.updateOne({ _id: info._id }, { $set: info })
     res.status(200).json({ data: r })
-    if (info.type === 'QSys') { await createQsys(info) }
-    if (info.type === 'Barix') { await getBarix(info)}
+    if (info.type === 'QSys') {
+      await createQsys(info)
+    }
+    if (info.type === 'Barix') {
+      await getBarix(info)
+    }
   } catch (err) {
-    res.status(500).json({ status: 'error', data: err, message: ' 알 수 없는 오류가 발생하였습니다.' })
+    res
+      .status(500)
+      .json({
+        status: 'error',
+        data: err,
+        message: ' 알 수 없는 오류가 발생하였습니다.'
+      })
   }
 })
 
@@ -65,18 +92,25 @@ router.get('/delete', async (req, res) => {
     res.status(200).json({ result: r })
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: err, message: '알 수 없는 오류가 발생하였습니다.'})
+    res
+      .status(500)
+      .json({ error: err, message: '알 수 없는 오류가 발생하였습니다.' })
   }
 })
 
 router.get('/checked', async (req, res) => {
   try {
     const info = req.query
-    const r = await Devices.updateOne({ _id: info._id }, { $set: { checked: true } })
+    const r = await Devices.updateOne(
+      { _id: info._id },
+      { $set: { checked: true } }
+    )
     res.status(200).json({ result: r })
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: err, message: '알 수 없는 오류가 발생하였습니다.'})
+    res
+      .status(500)
+      .json({ error: err, message: '알 수 없는 오류가 발생하였습니다.' })
   }
 })
 

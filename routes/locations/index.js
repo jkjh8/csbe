@@ -1,3 +1,5 @@
+/** @format */
+
 const express = require('express')
 const router = express.Router()
 const Locations = require('models/location')
@@ -9,7 +11,7 @@ const Devices = require('models/devices')
 //       { $addFields: { location_id: { $toString: '$_id' } } },
 //       { $lookup: { from: 'devices', localField: 'location_id', foreignField: 'location_id', as: 'device' } },
 //       { $addFields: { device: { $arrayElemAt: ['$device', 0] } } }
-//     ])    
+//     ])
 //     res.status(200).json(r)
 //   } catch (err) {
 //     console.log(err)
@@ -21,8 +23,22 @@ router.get('/', async (req, res) => {
   try {
     const r = await Locations.aggregate([
       { $addFields: { location_id: { $toString: '$_id' } } },
-      { $lookup: { from: 'devices', localField: 'location_id', foreignField: 'parent_id', as: 'children' } },
-      { $lookup: { from: 'devices', localField: 'ipaddress', foreignField: 'location_id', as: 'device' } },
+      {
+        $lookup: {
+          from: 'devices',
+          localField: 'location_id',
+          foreignField: 'parent_id',
+          as: 'children'
+        }
+      },
+      {
+        $lookup: {
+          from: 'devices',
+          localField: 'ipaddress',
+          foreignField: 'ipaddress',
+          as: 'device'
+        }
+      },
       { $addFields: { device: { $arrayElemAt: ['$device', 0] } } }
     ])
     res.status(200).json(r)
@@ -32,14 +48,30 @@ router.get('/', async (req, res) => {
   }
 })
 
-async function check (info) {
+router.get('/info', async (req, res) => {
+  try {
+    const { id } = req.query
+    const r = await Locations.findById(id)
+    let devi = await Devices.findOne({ ipaddress: r.ipaddress })
+    if (!devi) {
+      devi = { _id: '000' }
+    }
+    res.status(200).json({ r, devi })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: error })
+  }
+})
+
+async function check(info) {
   let r = await Locations.findOne({ index: info.index })
   if (r && r._id.toString() !== info._id) return '인덱스가 중복 되었습니다.'
   r = await Locations.findOne({ name: info.name })
   if (r && r._id.toString() !== info._id) return '지역 이름이 이미 존재합니다.'
   r = await Locations.findOne({ ipaddress: info.ipaddress })
-  if (r && r._id.toString() !== info._id) return '디바이스가 중복 선택되었습니다.'
-return null
+  if (r && r._id.toString() !== info._id)
+    return '디바이스가 중복 선택되었습니다.'
+  return null
 }
 
 router.post('/', async (req, res) => {
@@ -52,7 +84,9 @@ router.post('/', async (req, res) => {
     res.status(200).json(r)
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: err, message: '알 수 없는 오류가 발생하였습니다.' })
+    res
+      .status(500)
+      .json({ error: err, message: '알 수 없는 오류가 발생하였습니다.' })
   }
 })
 
@@ -62,15 +96,20 @@ router.put('/', async (req, res) => {
     const checkDup = await check(info)
     if (checkDup) return res.status(500).json({ message: checkDup })
 
-    r = await Devices.updateOne({
-      ipaddress: info.ipaddress
-    }, { $set: { parent_id: info._id } })
+    r = await Devices.updateOne(
+      {
+        ipaddress: info.ipaddress
+      },
+      { $set: { parent_id: info._id } }
+    )
     console.log(r)
-    r = await Locations.updateOne({ _id: req.body._id }, { $set: req.body } )
+    r = await Locations.updateOne({ _id: req.body._id }, { $set: req.body })
     res.status(200).json(r)
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: err, message: '알 수 없는 오류가 발생하였습니다.' })
+    res
+      .status(500)
+      .json({ error: err, message: '알 수 없는 오류가 발생하였습니다.' })
   }
 })
 
@@ -81,7 +120,9 @@ router.get('/delete', async (req, res) => {
     res.status(200).json(r)
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: err, message: '알 수 없는 오류가 발생하였습니다.'})
+    res
+      .status(500)
+      .json({ error: err, message: '알 수 없는 오류가 발생하였습니다.' })
   }
 })
 
