@@ -1,3 +1,5 @@
+/** @format */
+
 const path = require('path')
 const fs = require('fs')
 const express = require('express')
@@ -9,7 +11,7 @@ const port = 3000
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const passport = require('passport')
-
+const history = require('connect-history-api-fallback')
 // 가변 경로 설정
 require('app-module-path').addPath(__dirname)
 
@@ -18,17 +20,18 @@ require('./api/db')
 // const sequelize = require('./models').sequelize
 // sequelize.sync()
 
-
 require('./api/passport')()
 
-
 //server setup
-app.use(cors({
-  origin: function (origin, callback) {
-    callback(null, origin)
-  },
-  credentials: true
-}))
+app.use(history())
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      callback(null, origin)
+    },
+    credentials: true
+  })
+)
 app.use(passport.initialize())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -39,8 +42,8 @@ app.use(express.static(path.join(__dirname, 'public')))
 // 미디어 폴더 확인 및 생성
 global.filesPath = path.join(__dirname, 'files')
 
-function makeMediaFolder () {
-  if(!fs.existsSync(filesPath)) {
+function makeMediaFolder() {
+  if (!fs.existsSync(filesPath)) {
     fs.mkdirSync(filesPath)
   }
 }
@@ -51,20 +54,18 @@ app.use('/media', express.static(filesPath))
 //load router
 app.use('/', require('./routes'))
 
-
 //socket io
 const server = http.createServer(app)
-global.io = require('socket.io') (server, {
+global.io = require('socket.io')(server, {
   cors: {
-    origin: "http://localhost:8080",
-    methods: ["GET", "POST"]
+    origin: 'http://localhost:8080',
+    methods: ['GET', 'POST']
   }
 })
 
 io.on('connection', (socket) => {
   console.log('connected! ')
 })
-
 
 server.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
