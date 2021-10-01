@@ -3,6 +3,7 @@
 .env
 node_modules
 public
+keys
 /files
 
 # Log files
