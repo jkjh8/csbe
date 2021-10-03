@@ -20,6 +20,7 @@ const cookieParser = require('cookie-parser')
 const passport = require('passport')
 const history = require('connect-history-api-fallback')
 const fileUpload = require('express-fileupload')
+
 // 가변 경로 설정
 require('app-module-path').addPath(__dirname)
 
@@ -48,25 +49,33 @@ app.use(require('morgan')('dev')) //debuger
 app.use(fileUpload())
 app.use(express.static(path.join(__dirname, 'public')))
 
-// 미디어 폴더 확인 및 생성
-global.filesPath = path.join(__dirname, 'files')
+// 폴더 확인 및 생성
 
-function makeMediaFolder() {
-  if (!fs.existsSync(filesPath)) {
-    fs.mkdirSync(filesPath)
+function makeMediaFolder(folder) {
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder)
   }
 }
 
-makeMediaFolder()
+global.filesPath = path.join(__dirname, 'files')
+global.tempPath = path.join(__dirname, 'temp')
+
+makeMediaFolder(filesPath)
+makeMediaFolder(tempPath)
+
 app.use('/media', express.static(filesPath))
+app.use('/temp', express.static(tempPath))
 
 //load router
-app.use('/', require('./routes'))
+app.get('/', (req, res, next) => {
+  res.render('index', { title: 'Centeral Control Server' })
+})
+app.use('/api', require('./routes'))
 
 //socket io
 const httpServer = http.createServer(app)
 const httpsServer = https.createServer(credentials, app)
-global.io = require('socket.io')(httpsServer, {
+global.io = require('socket.io')(httpServer, {
   cors: {
     origin: 'http://localhost:8080',
     methods: ['GET', 'POST']
@@ -80,9 +89,9 @@ io.on('connection', (socket) => {
 httpServer.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
 })
-httpsServer.listen(sslPort, () => {
-  console.log(`App listening at http://localhost:${sslPort}`)
-})
+// httpsServer.listen(port, () => {
+//   console.log(`App listening at https://localhost:${port}`)
+// })
 const devices = require('./api/devices')
 devices.get()
 // require('./api/devices/checkBarix')
