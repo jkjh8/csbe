@@ -10,9 +10,9 @@ const port = 3000
 const sslPort = 3443
 
 // keys
-const privateKey = fs.readFileSync('./keys/private.key', 'utf8')
-const cerificate = fs.readFileSync('./keys/mediaserver.crt', 'utf8')
-const credentials = { key: privateKey, crt: cerificate }
+// const privateKey = fs.readFileSync('./keys/private.key', 'utf8')
+// const cerificate = fs.readFileSync('./keys/mediaserver.crt', 'utf8')
+// const credentials = { key: privateKey, crt: cerificate }
 
 //load modules
 const cors = require('cors')
@@ -74,7 +74,7 @@ app.use('/api', require('./routes'))
 
 //socket io
 const httpServer = http.createServer(app)
-const httpsServer = https.createServer(credentials, app)
+// const httpsServer = https.createServer(credentials, app)
 global.io = require('socket.io')(httpServer, {
   cors: {
     origin: 'http://localhost:8080',

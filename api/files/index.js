@@ -3,11 +3,11 @@ const fs = require('fs')
 /* global filesPath */
 
 // load ffmpeg
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
-const ffprobePath = require('@ffprobe-installer/ffprobe').path
-ffmpeg = require('fluent-ffmpeg')
-ffmpeg.setFfmpegPath(ffmpegPath)
-ffmpeg.setFfprobePath(ffprobePath)
+// const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
+// const ffprobePath = require('@ffprobe-installer/ffprobe').path
+// ffmpeg = require('fluent-ffmpeg')
+// ffmpeg.setFfmpegPath(ffmpegPath)
+// ffmpeg.setFfprobePath(ffprobePath)
 
 exports.makeFolder = async (req, res) => {
   try {
@@ -77,13 +77,16 @@ exports.getFiles = async (req, res) => {
       files.push({
         idx: i,
         dir: true,
+        base: 'media',
         type: 'directory',
         name: f[i].name,
         fsrc: reqPath
       })
     } else if (new RegExp(/.wav|.mp3/g).test(f[i].name)) {
-      const fileInfo = await getFileInfo(f[i].name, reqPath)
+      let fileInfo = {}
+      // const fileInfo = await getFileInfo(f[i].name, reqPath)
       fileInfo['idx'] = i
+      fileInfo['base'] = 'media'
       fileInfo['src'] = req.query.link
       fileInfo['dir'] = false
       fileInfo['name'] = f[i].name
@@ -91,8 +94,10 @@ exports.getFiles = async (req, res) => {
       fileInfo['fsrc'] = reqPath
       files.push(fileInfo)
     } else if (new RegExp(/.mp4|.mkv|.mov/g).test(f[i].name)) {
-      const fileInfo = await getFileInfo(f[i].name, reqPath)
+      let fileInfo = {}
+      // const fileInfo = await getFileInfo(f[i].name, reqPath)
       fileInfo['idx'] = i
+      fileInfo['base'] = 'media'
       fileInfo['src'] = req.query.link
       fileInfo['dir'] = false
       fileInfo['name'] = f[i].name

@@ -5,6 +5,7 @@ node_modules
 public
 keys
 /files
+/temp
 
 # Log files
 npm-debug.log*
