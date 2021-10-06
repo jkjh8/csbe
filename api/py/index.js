@@ -38,7 +38,7 @@ exports.getVoices = (req, res) => {
         console.error(err)
       }
       console.log(result)
-      res.status(200).json(result)
+      res.status(200).json({ voices: result[0] })
     })
   } catch (error) {
     console.error(error)

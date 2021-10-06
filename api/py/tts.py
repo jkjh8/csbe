@@ -12,10 +12,10 @@ def make_file(command):
         engine.setProperty('rate', 160)
         fileWav = filePath + '/' + filename + '.wav'
         fileMp3 = filePath + '/' + filename + '.mp3'
-# engine.say(text)
-# engine.runAndWait()
-# voices = engine.getProperty("voice")[0]
-# engine.setProperty('voice', voices)
+        # engine.say(text)
+        # engine.runAndWait()
+        # voices = engine.getProperty("voice")[0]
+        # engine.setProperty('voice', voices)
 
         engine.save_to_file(text, filePath + '/' + filename + '.wav')
         engine.runAndWait()
@@ -30,7 +30,15 @@ def get_voices():
         voices = engine.getProperty('voices')
         print(json.dumps(voices, default=lambda x: x.__dict__))
     except Exception:
-        print('error')
+        print(json.dumps({ "error": Exception }))
+
+def get_rate():
+    try:
+        engine = pyttsx3.init()
+        rate = engine.getProperty('rate')
+        print(json.dumps({ "rate": rate }))
+    except Exception:
+        print(json.dumps({ "error": Exception }))
 
 if __name__ == "__main__":
     command = sys.argv
@@ -38,3 +46,5 @@ if __name__ == "__main__":
         make_file(command)
     elif command[1] == "get_voices":
         get_voices()
+    elif command[1] == "get_rate":
+        get_rate()
