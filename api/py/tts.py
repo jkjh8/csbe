@@ -27,8 +27,8 @@ def make_file(command):
 def get_voices():
     try:    
         engine = pyttsx3.init()
-        voices = engine.getProperty("voice")
-        print(json.dumps(voices))
+        voices = engine.getProperty('voices')
+        print(json.dumps(voices, default=lambda x: x.__dict__))
     except Exception:
         print('error')
 
