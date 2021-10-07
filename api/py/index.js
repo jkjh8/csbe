@@ -2,12 +2,28 @@ const { PythonShell } = require('python-shell')
 const { v4: uuidv4 } = require('uuid')
 const path = require('path')
 const os = require('os')
+const fs = require('fs')
+const request = require('request')
+const axios = require('axios')
 
 exports.preview = async (req, res) => {
   const text = req.body.text
   const voiceId = req.body.voice
   const rate = req.body.rate
   try {
+    // 카카오 TTS
+    // const kakaooptions = {
+    //   uri: "https://kakaoi-newtone-openapi.kakao.com/v1/synthesize",
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/xml",
+    //     "Authorization": `KakaoAK ${process.env.KAKAO_SECRET}`
+    //   },
+    //   body: `<speak>${text}</speak>`
+    // }
+    // request.post(kakaooptions).pipe(fs.createWriteStream('kakaotest.mp3'))
+    // console.log(r.data)
+    // fs.writeFileSync('test.mp3', r.data.replace(' ', '').replace('"', ), 'utf8')
     const filename = `${uuidv4()}`
     const options = {
       mode: 'json',
