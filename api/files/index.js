@@ -3,11 +3,11 @@ const fs = require('fs')
 /* global filesPath */
 
 // load ffmpeg
-const ffmpegPath = require('ffmpeg-static')
-const ffprobePath = require('ffprobe-static')
-ffmpeg = require('fluent-ffmpeg')
-ffmpeg.setFfmpegPath(ffmpegPath)
-ffmpeg.setFfprobePath(ffprobePath)
+// const ffmpegPath = require('ffmpeg-static')
+// const ffprobePath = require('ffprobe-static')
+// ffmpeg = require('fluent-ffmpeg')
+// ffmpeg.setFfmpegPath('')
+// ffmpeg.setFfprobePath('')
 
 exports.makeFolder = async (req, res) => {
   try {
@@ -84,7 +84,7 @@ exports.getFiles = async (req, res) => {
       })
     } else if (new RegExp(/.wav|.mp3/g).test(f[i].name)) {
       let fileInfo = {}
-      fileInfo = await getFileInfo(f[i].name, reqPath)
+      // fileInfo = await getFileInfo(f[i].name, reqPath)
       fileInfo['idx'] = i
       fileInfo['base'] = 'media'
       fileInfo['src'] = req.query.link
@@ -95,7 +95,7 @@ exports.getFiles = async (req, res) => {
       files.push(fileInfo)
     } else if (new RegExp(/.mp4|.mkv|.mov/g).test(f[i].name)) {
       let fileInfo = {}
-      fileInfo = await getFileInfo(f[i].name, reqPath)
+      // fileInfo = await getFileInfo(f[i].name, reqPath)
       fileInfo['idx'] = i
       fileInfo['base'] = 'media'
       fileInfo['src'] = req.query.link

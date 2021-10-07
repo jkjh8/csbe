@@ -5,18 +5,20 @@ const os = require('os')
 
 exports.preview = async (req, res) => {
   const text = req.body.text
+  const voiceId = req.body.voice
+  const rate = req.body.rate
   try {
-    const filename = uuidv4()
+    const filename = `${uuidv4()}`
     const options = {
       mode: 'json',
       pythonPath: 'python3',
       pythonOptions: ['-u'],
       scriptPath: __dirname,
-      args: ['make_file', text, tempPath, filename]
+      args: ['make_file', text, tempPath, filename, rate, voiceId]
     }
     PythonShell.run('tts.py', options, function(err, result) {
       if (err) console.error(err)
-      res.status(200).json(result)
+      res.status(200).json(result[0])
     })
   } catch (err) {
     console.error(err)
@@ -26,19 +28,35 @@ exports.preview = async (req, res) => {
 
 exports.getVoices = (req, res) => {
   try {
-    const options = {
+    let result = {}
+    let options = {
       mode: 'json',
       pythonPath: 'python3',
       pythonOptions: ['-u'],
       scriptPath: __dirname,
       args: ['get_voices']
     }
-    PythonShell.run('tts.py', options, function(err, result) {
+    PythonShell.run('tts.py', options, function(err, rt) {
       if (err) {
         console.error(err)
       }
-      console.log(result)
-      res.status(200).json({ voices: result[0] })
+      result['voices'] = rt[0]
+
+      options = {
+        mode: 'json',
+        pythonPath: 'python3',
+        pythonOptions: ['-u'],
+        scriptPath: __dirname,
+        args: ['get_rate']
+      }
+      PythonShell.run('tts.py', options, function(err, rt) {
+        if (err) {
+          console.error(err)
+        }
+        result['rate'] = rt[0].rate
+        console.log(result)
+        res.status(200).json(result)
+      })
     })
   } catch (error) {
     console.error(error)

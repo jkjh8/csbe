@@ -9,9 +9,13 @@ def make_file(command):
         text = command[2]
         filePath = command[3]
         filename = command[4]
-        engine.setProperty('rate', 160)
+        rate = command[5]
+        voice = command[6]
         fileWav = filePath + '/' + filename + '.wav'
         fileMp3 = filePath + '/' + filename + '.mp3'
+        
+        engine.setProperty('rate', rate)
+        engine.setProperty('voice', voice)
         # engine.say(text)
         # engine.runAndWait()
         # voices = engine.getProperty("voice")[0]
