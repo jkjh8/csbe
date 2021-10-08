@@ -5,6 +5,7 @@ const ttsTextSchema = new mongoose.Schema({
   name: { type: String },
   user_id: { type: String },
   rate: { type: Number, default: 200 },
+  voice: { type: Object },
   volume: { type: Number },
   text: { type: String }
 }, {
