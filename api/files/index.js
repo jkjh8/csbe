@@ -124,3 +124,20 @@ function getFileInfo (file, reqPath) {
     })
   })
 }
+
+exports.removeTmpFiles = function (req, res) {
+  const files = fs.readdirSync(tempPath)
+  console.log(files)
+  files.forEach(f => {
+    const file = path.join(tempPath, f)
+    fs.stat(file, ((err, stats) => {
+      if (err) {
+        console.error('delete error', file)
+      }
+      if (!stats.isDirectory()) {
+        return fs.unlinkSync(file)
+      }
+    }))
+  })
+  res.sendStatus(200)
+}

@@ -2,10 +2,18 @@
 
 const express = require('express')
 const router = express.Router()
+const { v4: uuidv4 } = require('uuid')
+const path = require('path')
+const fs = require('fs')
+const request = require('request')
 
 const TTS = require('models/ttsText')
+const ttsPython = require('api/py')
 
-router.get('/', async function (req, res) {
+router.post('/preview', ttsPython.preview)
+router.get('/voices', ttsPython.getVoices)
+
+router.get('/list', async function (req, res) {
   try {
     const { user_id } = req.query
     const search = [{ type: 'global' }]
@@ -20,7 +28,7 @@ router.get('/', async function (req, res) {
   }
 })
 
-router.post('/', async (req, res) => {
+router.post('/list', async (req, res) => {
   try {
     const newMessage = new TTS(req.body)
     const r = await newMessage.save()
@@ -32,7 +40,7 @@ router.post('/', async (req, res) => {
   }
 })
 
-router.put('/', async (req, res) => {
+router.put('/list', async (req, res) => {
   try {
     const info = req.body
     const r = await TTS.updateOne(
@@ -51,12 +59,47 @@ router.put('/', async (req, res) => {
   }
 })
 
-router.get('/delete', async (req, res) => {
+router.get('/deleteList', async (req, res) => {
   try {
     const id = req.query.id
     console.log('id = ', id)
     const r = await TTS.deleteOne({ _id: id })
     res.status(200).json(r)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: error })
+  }
+})
+
+router.post('/kakao', async (req, res) => {
+  try {
+    const { voice, rate, volume, text } = req.body
+    const fileName = `${uuidv4()}.mp3`
+    const filePath = path.join(tempPath, fileName)
+    const reqestText = `<speak><voice name="${voice}"><prosody rate="${rate}" volume="${volume}">${text}</prosody></voice></speak>`
+    const options = {
+      uri: 'https://kakaoi-newtone-openapi.kakao.com/v1/synthesize',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/xml',
+        'Authorization': `KakaoAK ${process.env.KAKAO_SECRET}`
+      },
+      body: reqestText
+    }
+    request(options)
+      .on('error', function(err) {
+        console.error(err)
+      })
+      .on('end', function () {
+        console.log('end')
+        res.status(200).json({
+          file: fileName,
+          src: fileName,
+          name: 'KAKAO TTS',
+          base: 'temp'
+        })
+      })
+      .pipe(fs.createWriteStream(filePath))
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error })

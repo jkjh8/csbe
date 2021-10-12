@@ -13,6 +13,6 @@ router.use('/eventlog', require('./eventlog'))
 router.use('/devices', require('./devices'))
 router.use('/locations', require('./locations'))
 router.use('/hardware', require('./hardware'))
-router.use('/tts', require('./tts'))
+router.use('/admin', require('./admin'))
 
 module.exports = router
