@@ -34,6 +34,7 @@ exports.preview = async (req, res) => {
     }
     PythonShell.run('tts.py', options, function(err, result) {
       if (err) console.error(err)
+      console.log(result[0])
       res.status(200).json(result[0])
     })
   } catch (err) {
