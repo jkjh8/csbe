@@ -6,6 +6,7 @@ public
 keys
 /files
 /temp
+/schedules
 
 # Log files
 npm-debug.log*

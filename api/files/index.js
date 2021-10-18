@@ -107,13 +107,24 @@ exports.getFiles = async (req, res) => {
     }
   }
   res.status(200).json({
-    path: reqPath.replace(filesPath, 'Home').split(path.sep),
+    path: removeBlank(reqPath.replace(filesPath, 'Home').split(path.sep)),
     files: files.sort(function (a) {
       if (a.dir === true ) return -1
       return 0
     })
   })
 }
+
+function removeBlank (item) {
+  for (let i = 0; i < item.length; i++) {
+    if(item[i] === '') {
+      item.splice(i, 1);
+      i--
+    }
+  }
+  return item
+}
+
 
 function getFileInfo (file, reqPath) {
   console.log(reqPath)

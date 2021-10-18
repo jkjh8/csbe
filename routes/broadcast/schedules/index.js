@@ -2,13 +2,97 @@
 
 const express = require('express')
 const router = express.Router()
+const fs = require('fs')
+const path = require('path')
+const rimraf = require('rimraf')
 
-router.use('/preset', require('./preset'))
-router.use('/tts', require('./tts'))
-router.use('/schedules', require('./schedules'))
-
-// const Locations = require('models/location')
+const Schedules = require('models/schedules')
 // const Devices = require('models/devices')
+
+router.get('/', async (req, res) => {
+  try {
+    const r = await Schedules.find()
+    res.status(200).json(r)
+  } catch (err) {
+    res.status(500).json({ error: err, message: '서버 에러가 발생하였습니다.'})
+  }
+})
+
+function makeFolder(dir) {
+  if(!fs.existsSync(dir)) {
+    fs.mkdirSync(dir)
+  }
+}
+
+async function copyFile(source, target) {
+  var rd = fs.createReadStream(source);
+  var wr = fs.createWriteStream(target);
+  try {
+    return await new Promise(function(resolve, reject) {
+      rd.on('error', reject);
+      wr.on('error', reject);
+      wr.on('finish', resolve);
+      rd.pipe(wr);
+    });
+  } catch (error) {
+    rd.destroy();
+    wr.end();
+    throw error;
+  }
+}
+
+router.post('/', async (req, res) => {
+  try {
+    const reqSchedule = req.body
+    console.log(reqSchedule)
+
+    const scheduleFolder = path.join(schedulePath, reqSchedule.id)
+    const scheduleFile = path.join(scheduleFolder, reqSchedule.file.name)
+    await makeFolder(scheduleFolder)
+
+    console.log(fs.existsSync(reqSchedule.file.fsrc))
+
+    await copyFile(path.join(reqSchedule.file.fsrc, reqSchedule.file.name), scheduleFile)
+    // console.log(movefile)
+
+    const schedule = new Schedules({
+      ...reqSchedule,
+      scheduleFile: scheduleFile,
+    })
+    const r = await schedule.save()
+    console.log(r)
+    res.status(200).json(r)
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ error: err, message: '서버 에러가 발생하였습니다.'})
+  }
+})
+
+router.put('/', async (req, res) => {
+  try {
+    const schedule = req.body
+    const r = await Schedules.updateOne({ id: schedule.id }, { $set: schedule })
+    console.log(r)
+    res.status(200).json(r)
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ error: err, message: '서버 에러가 발생하였습니다.' })
+  }
+})
+
+router.post('/delete', async (req, res) => {
+  try {
+    const { _id, id } = req.body
+    const scheduleFolder = path.join(schedulePath, id)
+    rimraf.sync(scheduleFolder)
+    const r = await Schedules.deleteOne({ _id: _id })
+    res.status(200).json(r)
+    
+  } catch (err) {
+    res.status(500).json({error: err, message: '서버 에러가 발생하였습니다.'})
+  }
+
+})
 
 // router.get('/', async (req, res) => {
 //   try {

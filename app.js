@@ -58,12 +58,15 @@ function makeMediaFolder(folder) {
 }
 
 global.filesPath = path.join(__dirname, 'files')
+global.schedulePath = path.join(__dirname, 'schedules')
 global.tempPath = path.join(__dirname, 'temp')
 
 makeMediaFolder(filesPath)
+makeMediaFolder(schedulePath)
 makeMediaFolder(tempPath)
 
 app.use('/media', express.static(filesPath))
+app.use('/schedule', express.static(schedulePath))
 app.use('/temp', express.static(tempPath))
 
 //load router
