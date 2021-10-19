@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const zonePresetSchema = new mongoose.Schema({
-  type: { type: String, default: 'global' },
+  type: { type: String, default: 'Global' },
   name: { type: String },
   user_id: { type: String },
   zones_id: { type: Array },

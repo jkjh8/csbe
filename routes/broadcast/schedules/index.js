@@ -9,15 +9,6 @@ const rimraf = require('rimraf')
 const Schedules = require('models/schedules')
 // const Devices = require('models/devices')
 
-router.get('/', async (req, res) => {
-  try {
-    const r = await Schedules.find()
-    res.status(200).json(r)
-  } catch (err) {
-    res.status(500).json({ error: err, message: '서버 에러가 발생하였습니다.'})
-  }
-})
-
 function makeFolder(dir) {
   if(!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -40,6 +31,15 @@ async function copyFile(source, target) {
     throw error;
   }
 }
+
+router.get('/', async (req, res) => {
+  try {
+    const r = await Schedules.find()
+    res.status(200).json(r)
+  } catch (err) {
+    res.status(500).json({ error: err, message: '서버 에러가 발생하였습니다.'})
+  }
+})
 
 router.post('/', async (req, res) => {
   try {
@@ -92,6 +92,16 @@ router.post('/delete', async (req, res) => {
     res.status(500).json({error: err, message: '서버 에러가 발생하였습니다.'})
   }
 
+})
+
+router.get('/active', async (req, res) => {
+  try {
+    const { id, value } = req.query
+    const r = await Schedules.updateOne({ _id: id }, { $set: { active: value }})
+    res.status(200).json(r)
+  } catch (err) {
+    res.status(500).json({error: err, message: '서버 에러가 발생하였습니다.'})
+  }
 })
 
 // router.get('/', async (req, res) => {

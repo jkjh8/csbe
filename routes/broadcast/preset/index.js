@@ -7,7 +7,7 @@ router.get('/', async function (req, res) {
   try {
     const { user_id } = req.query
 
-    const search = [{ type: 'global' }]
+    const search = [{ type: 'Global' }]
     if (user_id && user_id !== 'undefined') {
       search.push({ user_id: user_id })
     }

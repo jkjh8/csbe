@@ -22,6 +22,7 @@ const schedulesschema = new mongoose.Schema(
     scheduleFile: { type: Object },
     zones: { type: Array },
     selected: { type: Array },
+    active: { type: Boolean }
   },
   {
     timestamps: true
