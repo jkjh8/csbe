@@ -7,6 +7,8 @@ const path = require('path')
 const rimraf = require('rimraf')
 
 const Schedules = require('models/schedules')
+const moment = require('moment')
+moment.locale('KR')
 // const Devices = require('models/devices')
 
 function makeFolder(dir) {
@@ -34,9 +36,22 @@ async function copyFile(source, target) {
 
 router.get('/', async (req, res) => {
   try {
-    const r = await Schedules.find()
+    const { start, end } = req.query
+    const query = []
+    if (start && start !== 'undefined' && end && end !== 'undefined') {
+      query.push({ dateData: {'$gte': start, '$lt' : end }})
+      query.push({ repeat: '매일' })
+      query.push({ repeat: '매주' })
+    }
+    let r
+    if (query.length) {
+      r = await Schedules.find({ $or: query }) 
+    } else {
+      r = await Schedules.find()
+    }
     res.status(200).json(r)
   } catch (err) {
+    console.log(err)
     res.status(500).json({ error: err, message: '서버 에러가 발생하였습니다.'})
   }
 })
@@ -44,14 +59,11 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const reqSchedule = req.body
-    console.log(reqSchedule)
 
+    // fileCopy
     const scheduleFolder = path.join(schedulePath, reqSchedule.id)
     const scheduleFile = path.join(scheduleFolder, reqSchedule.file.name)
     await makeFolder(scheduleFolder)
-
-    console.log(fs.existsSync(reqSchedule.file.fsrc))
-
     await copyFile(path.join(reqSchedule.file.fsrc, reqSchedule.file.name), scheduleFile)
     // console.log(movefile)
 
@@ -71,7 +83,8 @@ router.post('/', async (req, res) => {
 router.put('/', async (req, res) => {
   try {
     const schedule = req.body
-    const r = await Schedules.updateOne({ id: schedule.id }, { $set: schedule })
+    console.log(schedule)
+    const r = await Schedules.updateOne({ _id: schedule._id }, { $set: schedule })
     console.log(r)
     res.status(200).json(r)
   } catch (err) {

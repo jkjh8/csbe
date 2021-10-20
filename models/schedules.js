@@ -9,6 +9,7 @@ const schedulesschema = new mongoose.Schema(
     mode: { type: String },
     time: { type: String },
     date: { type: String },
+    dateData: { type:Date },
     week: { type: Array },
     name: { type: String },
     ttsText: { type: String },
@@ -22,7 +23,8 @@ const schedulesschema = new mongoose.Schema(
     scheduleFile: { type: Object },
     zones: { type: Array },
     selected: { type: Array },
-    active: { type: Boolean }
+    active: { type: Boolean },
+    color: { type: String },
   },
   {
     timestamps: true
