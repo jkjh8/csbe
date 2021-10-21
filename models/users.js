@@ -14,7 +14,8 @@ const userSchema = new mongoose.Schema({
   auth: { type: Array },
   userLevel: { type: Number, default: 0 },
   numberOfLogin: { type: Number, default: 0 },
-  loginAt: { type: Date }
+  loginAt: { type: Date },
+  color: { type: String, default: '##91ECEC' }
 }, {
   timestamps: true
 })

@@ -30,6 +30,17 @@ router.get(`/admin`, async (req, res) => {
   }
 })
 
+router.put('/color', async (req, res) => {
+  try {
+    const { email, color } = req.body
+    console.log(email, color)
+    const r = await Users.updateOne({ email: email }, { $set: { color: color }})
+    res.status(200).json(r)
+  } catch (err) {
+    res.status(500).json({ error: err, message: '서버 에러가 발생하였습니다.' })
+  }
+})
+
 router.get('/delete', async (req, res) => {
   try {
     const { id } = req.query
