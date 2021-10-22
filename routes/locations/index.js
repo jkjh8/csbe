@@ -41,6 +41,7 @@ router.get('/', async (req, res) => {
       },
       { $addFields: { device: { $arrayElemAt: ['$device', 0] } } }
     ])
+    console.log(r)
     res.status(200).json(r)
   } catch (err) {
     console.error(err)
@@ -91,6 +92,7 @@ router.post('/', async (req, res) => {
 })
 
 router.put('/', async (req, res) => {
+  console.log(req.body)
   try {
     const info = req.body
     const checkDup = await check(info)
