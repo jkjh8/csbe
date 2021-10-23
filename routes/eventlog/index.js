@@ -21,4 +21,23 @@ router.get('/', async (req, res) => {
   }
 })
 
+router.post('/', async (req, res) => {
+  try {
+    console.log(req.body)
+    const log = { ...req.body }
+    const eventlog = new Logs({
+      source: log.source,
+      category : log.category ? log.category: 'info',
+      zones: log.zones,
+      priority: log.priority ? log.priority: 'low',
+      message: log.message
+    })
+    await eventlog.save()
+    res.sendStatus(200)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: error, message: error.message })
+  }
+})
+
 module.exports = router
