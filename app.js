@@ -65,6 +65,8 @@ makeMediaFolder(filesPath)
 makeMediaFolder(schedulePath)
 makeMediaFolder(tempPath)
 
+makeMediaFolder(path.join(filesPath, 'home'))
+
 app.use('/media', express.static(filesPath))
 app.use('/schedule', express.static(schedulePath))
 app.use('/temp', express.static(tempPath))

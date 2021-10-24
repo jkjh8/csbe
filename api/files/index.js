@@ -11,10 +11,7 @@ const fs = require('fs')
 
 exports.makeFolder = async (req, res) => {
   try {
-    let reqPath = req.body.currentPath
-    reqPath.shift()
-    reqPath = reqPath.join('/')
-    const folder = path.join(filesPath, reqPath, req.body.folder)
+    const folder = path.join(filesPath, req.body.join('/'))
     if (!fs.existsSync(folder)) {
       fs.mkdirSync(folder)
       return res.status(200).json({ dir: folder, message: '폴더를 생성하였습니다' })
@@ -49,22 +46,92 @@ exports.del = async (req, res) => {
   try {
     const target = req.body
     if (target.type === 'directory') {
-      const dir = path.join(target.fsrc, target.name)
-      if (fs.existsSync(dir)) {
-        fs.rmdirSync(dir)
-        return res.status(200).json({ dir: dir, message: '폴더가 삭제 되었습니다'})
+      const dir = path.join(target.fsrc)
+      if (fs.existsSync(target.fsrc)) {
+        fs.rmdirSync(target.fsrc)
+        return res.status(200).json({ dir: target.name, message: '폴더가 삭제 되었습니다'})
       }
-      return res.status(500).json({ dir: dir, message: '폴더가 존재 하지 않습니다'})
+      return res.status(500).json({ dir: target.name, message: '폴더가 존재 하지 않습니다'})
     } else {
-      const file = target.filename
-      if (fs.existsSync(file)) {
-        fs.unlinkSync(file)
-        return res.status(200).json({ file: file, message: '파일이 삭제 되었습니다'})
+      if (fs.existsSync(target.fsrc)) {
+        fs.unlinkSync(target.fsrc)
+        return res.status(200).json({ file: target.name, message: '파일이 삭제 되었습니다'})
       }
-      return res.status(500).json({ file: file, message: '파일이 존재하지 안습니다.'})
+      return res.status(500).json({ file: target.name, message: '파일이 존재하지 안습니다.'})
     }
   } catch (err) {
     res.status(500).json({ err, message: '서버 에러가 발생하였습니다' })
+  }
+}
+
+exports.getFilesInPath = async (req, res) => {
+  try {
+    const rt = []
+    const reqPath = path.join(filesPath, req.body.path.join('/'))
+    console.log(reqPath)
+    const files = await fs.readdirSync(reqPath, { withFileTypes: true })
+    for (let i = 0; i < files.length; i++) {
+       if (files[i].isDirectory()) {
+         rt.push({
+           idx: i,
+           dir: true,
+           base: 'media',
+           type: 'directory',
+           name: files[i].name,
+           src: req.body.path.join('/'),
+           fsrc: path.join(reqPath, files[i].name)
+         })
+       } else if (new RegExp(/.wav|.mp3/g).test(files[i].name)) {
+        // let fileInfo = {}
+        // fileInfo = await getFileInfo(f[i].name, reqPath)
+        // fileInfo['idx'] = i
+        // fileInfo['base'] = 'media'
+        // fileInfo['src'] = req.query.link
+        // fileInfo['dir'] = false
+        // fileInfo['name'] = f[i].name
+        // fileInfo['type'] = 'audio'
+        // fileInfo['fsrc'] = reqPath
+        rt.push({
+          idx: i,
+          dir: false,
+          base: 'media',
+          type: 'audio',
+          name: files[i].name,
+          src: req.body.path.join('/'),
+          fsrc: path.join(reqPath, files[i].name),
+          size: fs.statSync(path.join(reqPath, files[i].name)).size
+        })
+      } else if (new RegExp(/.mp4|.mkv|.mov/g).test(files[i].name)) {
+        // let fileInfo = {}
+        // fileInfo = await getFileInfo(f[i].name, reqPath)
+        // fileInfo['idx'] = i
+        // fileInfo['base'] = 'media'
+        // fileInfo['src'] = req.query.link
+        // fileInfo['dir'] = false
+        // fileInfo['name'] = f[i].name
+        // fileInfo['type'] = 'video'
+        // fileInfo['fsrc'] = reqPath
+        // files.push(fileInfo)
+        rt.push({
+          idx: i,
+          dir: false,
+          base: 'media',
+          type: 'video',
+          name: files[i].name,
+          src: req.body.path.join('/'),
+          fsrc: path.join(reqPath, files[i].name),
+          size: fs.statSync(path.join(reqPath, files[i].name)).size
+        })
+      }
+    }
+    res.status(200).json({
+      path: removeBlank(reqPath.replace(filesPath, '').split(path.sep)),
+      files: rt
+    })
+    
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: err, message: '서버 에러가 발생하였습니다.'})
   }
 }
 

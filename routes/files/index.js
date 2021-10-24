@@ -4,6 +4,7 @@ const router = express.Router()
 const files = require('api/files')
 
 router.get('/', files.getFiles)
+router.post('/', files.getFilesInPath)
 
 // router.use('/sensors', require('./devices/barix'))
 
