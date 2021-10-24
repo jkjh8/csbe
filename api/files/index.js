@@ -81,7 +81,10 @@ exports.getFilesInPath = async (req, res) => {
            src: req.body.path.join('/'),
            fsrc: path.join(reqPath, files[i].name)
          })
-       } else if (new RegExp(/.wav|.mp3/g).test(files[i].name)) {
+       }
+    }
+    for (let i = 0; i < files.length; i++) {
+      if (new RegExp(/.wav|.mp3/g).test(files[i].name)) {
         // let fileInfo = {}
         // fileInfo = await getFileInfo(f[i].name, reqPath)
         // fileInfo['idx'] = i
@@ -122,13 +125,13 @@ exports.getFilesInPath = async (req, res) => {
           fsrc: path.join(reqPath, files[i].name),
           size: fs.statSync(path.join(reqPath, files[i].name)).size
         })
-      }
+
+    }
     }
     res.status(200).json({
       path: removeBlank(reqPath.replace(filesPath, '').split(path.sep)),
       files: rt
     })
-    
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: err, message: '서버 에러가 발생하였습니다.'})
