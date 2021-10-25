@@ -8,6 +8,7 @@ const locationSchema = new mongoose.Schema({
   status: { type: Boolean },
   active: { type: String },
   type: { type: String },
+  devicetype: { type: String },
   parent: { type: String },
   channel: { type: Number }
 }, {

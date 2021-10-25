@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
         }
       },
       { $addFields: { device: { $arrayElemAt: ['$device', 0] } } }
-    ])
+    ]).sort({ index: 1 })
     console.log(r)
     res.status(200).json(r)
   } catch (err) {

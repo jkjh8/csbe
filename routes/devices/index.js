@@ -69,10 +69,10 @@ router.put('/', async function (req, res) {
     if (checkMessage) return res.status(500).json({ message: checkMessage })
     const r = await Devices.updateOne({ _id: info._id }, { $set: info })
     res.status(200).json({ data: r })
-    if (info.type === 'QSys') {
+    if (info.devicetype === 'QSys') {
       await createQsys(info)
     }
-    if (info.type === 'Barix') {
+    if (info.devicetype === 'Barix') {
       await getBarix(info)
     }
   } catch (err) {

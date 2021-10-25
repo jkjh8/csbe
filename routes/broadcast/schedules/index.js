@@ -64,7 +64,7 @@ router.post('/', async (req, res) => {
     const scheduleFolder = path.join(schedulePath, reqSchedule.id)
     const scheduleFile = path.join(scheduleFolder, reqSchedule.file.name)
     await makeFolder(scheduleFolder)
-    await copyFile(path.join(reqSchedule.file.fsrc, reqSchedule.file.name), scheduleFile)
+    await copyFile(path.join(reqSchedule.file.fsrc), scheduleFile)
     // console.log(movefile)
 
     const schedule = new Schedules({
