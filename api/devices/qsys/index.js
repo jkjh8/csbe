@@ -1,34 +1,47 @@
 const QrcClient = require('qsys-qrc-client').default
 const { commands } = require('qsys-qrc-client')
-// const Qsys = require('../../../models/bak/qsys')
 const Devices = require('../../../models/devices')
 
-module.exports.createQsys = async (obj) => {
+module.exports.updateDevice = async function (obj) {
   const client = new QrcClient()
-  client.socket.on('connect', async () => {
-    // await checkRxTx(client, obj)
-    await updateStatus(client, obj)
-    await createZones(client, obj)
-    // await updateRx(client, obj)
-    // await updateTx(client, obj)
+  client.on('connect', async () => {
+    await updateZones(client, obj)
     client.end()
   })
-  client.on('error', (e) => onError(e, obj, client))
+  client.on('error', async (e) => {
+    console.error(`장비정보 수집중 오류가 발생하였습니다. Q-Sys: obj.ipaddress ${e}`)
+    await Devices.findByIdAndUpdate(obj._id, { status: false })
+  })
   client.socket.on('timeout', () => client.end())
   client.connect({ host: obj.ipaddress, port: 1710 })
 }
 
-module.exports.updateZones = async (obj) => {
-  const client = new QrcClient()
-  client.setTimeout(5000)
-  client.on('connect', async () => {
-    checkRxTx(client, obj)
-    client.end()
-  })
-  client.on('error', (e) => onError(e, obj, client))
-  client.socket.on('timeout', () => client.end())
-  client.connect({ host: obj.ipaddress, port: 1710 })
-}
+// module.exports.createQsys = async (obj) => {
+//   const client = new QrcClient()
+//   client.socket.on('connect', async () => {
+//     // await checkRxTx(client, obj)
+//     await updateStatus(client, obj)
+//     await createZones(client, obj)
+//     // await updateRx(client, obj)
+//     // await updateTx(client, obj)
+//     client.end()
+//   })
+//   client.on('error', (e) => onError(e, obj, client))
+//   client.socket.on('timeout', () => client.end())
+//   client.connect({ host: obj.ipaddress, port: 1710 })
+// }
+
+// module.exports.updateZones = async (obj) => {
+//   const client = new QrcClient()
+//   client.setTimeout(5000)
+//   client.on('connect', async () => {
+//     checkRxTx(client, obj)
+//     client.end()
+//   })
+//   client.on('error', (e) => onError(e, obj, client))
+//   client.socket.on('timeout', () => client.end())
+//   client.connect({ host: obj.ipaddress, port: 1710 })
+// }
 
 // async function checkRxTx(client, obj) {
 //   try {
@@ -144,28 +157,59 @@ async function updateTx (client, obj) {
   }
 }
 
-async function updateZones (arr, obj) {
-  const device = await Qsys.findOne({ ipaddress: obj.ipaddress })
+async function updateZones (client, obj) {
+  const zones = await client.send({ method: 'Component.GetControls', params: { Name: 'PA' } })
+  const status = await client.send(commands.getStatus())
+
+  const gain = []
+  const mute = []
   const active = []
-  arr.forEach(e => {
-    for (let i = 0; i < device.zone.length; i++) {
-      if (e.Name === device.zone[i].Name) {
-        device.zone[i] = e
-        break
-      }
+  zones.Controls.forEach(e => {
+    if (e.Name.match(/zone.\d+.gain/)) {
+      const channel = e.Name.replace(/[^0-9]/g, '')
+      gain[channel - 1] = e.Value
     }
-  })
-  //check active
-  device.zone.forEach(e => {
+    if (e.Name.match(/zone.\d+.mute/)) {
+      const channel = e.Name.replace(/[^0-9]/g, '')
+      mute[channel - 1] = e.Value
+    }
     if (e.Name.match(/zone.\d+.active/)) {
-      active.push(e)
+      const channel = e.Name.replace(/[^0-9]/g, '')
+      active[channel - 1] = e.Value
     }
   })
-  const result = active.some(e => e.Value === true)
-  device.active = result
-  await device.save()
+  const result = await Devices.updateOne({
+    _id: obj._id
+  }, {
+    gain, mute, active,
+    detail: status,
+    status: true
+  })
   return result
 }
+
+// async function updateZones (arr, obj) {
+//   const device = await Qsys.findOne({ ipaddress: obj.ipaddress })
+//   const active = []
+//   arr.forEach(e => {
+//     for (let i = 0; i < device.zone.length; i++) {
+//       if (e.Name === device.zone[i].Name) {
+//         device.zone[i] = e
+//         break
+//       }
+//     }
+//   })
+//   //check active
+//   device.zone.forEach(e => {
+//     if (e.Name.match(/zone.\d+.active/)) {
+//       active.push(e)
+//     }
+//   })
+//   const result = active.some(e => e.Value === true)
+//   device.active = result
+//   await device.save()
+//   return result
+// }
 
 const onError = (e, obj, client) => {
   if (client) {

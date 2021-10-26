@@ -2,6 +2,7 @@
 
 const path = require('path')
 const fs = require('fs')
+const cron = require('node-cron')
 const express = require('express')
 const app = express()
 const http = require('http')
@@ -80,16 +81,14 @@ app.use('/api', require('./routes'))
 //socket io
 const httpServer = http.createServer(app)
 // const httpsServer = https.createServer(credentials, app)
-global.io = require('socket.io')(httpServer, {
+app.io = require('socket.io')(httpServer, {
   cors: {
     origin: 'http://localhost:8080',
     methods: ['GET', 'POST']
   }
 })
+const socketIOHandler = require('./api/socketio')(app)
 
-io.on('connection', (socket) => {
-  console.log('connected! ')
-})
 
 httpServer.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
@@ -110,3 +109,9 @@ devices.get()
 // Log.find({ search: null }, function (err, res) {
 //   console.log(res)
 // })
+
+cron.schedule('*/10 * * * * *', () => {
+  devices.get()
+})
+
+module.exports = app
