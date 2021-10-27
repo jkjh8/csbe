@@ -1,21 +1,97 @@
 const QrcClient = require('qsys-qrc-client').default
 const { commands } = require('qsys-qrc-client')
-const Devices = require('../../../models/devices')
+const Devices = require('models/devices')
+const clients = {}
+const pageIds = {}
 
-module.exports.updateDevice = async function (obj) {
+async function connect (obj) {
   const client = new QrcClient()
   client.on('connect', async () => {
-    await updateZones(client, obj)
-    client.end()
+    clients[obj.ipaddress] = client
+    const r = await Devices.updateOne({ _id: obj._id }, { $set: { connect: true, status: true } })
+    console.log('connected device', r, obj.ipaddress)
+    // console.log(clients)
+  })
+  client.on('data', (data) => {
+    const rt = data.toString('utf8').replace(' ', '')
+    console.log(JSON.parse(rt))
+    if (rt.method === 'PA.PageStatus') {
+      console.log(rt)
+    }
   })
   client.on('error', async (e) => {
-    console.error(`장비정보 수집중 오류가 발생하였습니다. Q-Sys: obj.ipaddress ${e}`)
-    await Devices.findByIdAndUpdate(obj._id, { status: false })
+    clients[obj.ipaddress] = null
+    const r = await Devices.updateOne({ _id: obj._id }, { $set: { connect: false, status: false } })
+    console.log('disconnect device on error', r, obj.ipaddress)
   })
-  client.socket.on('timeout', () => client.end())
+  client.socket.on('timeout', async () => {
+    clients[obj.ipaddress] = null
+    const r = await Devices.updateOne({ _id: obj._id }, { $set: { connect: false, status: false } })
+    console.log('disconnect timeout device', r, obj.ipaddress)
+  })
   client.connect({ host: obj.ipaddress, port: 1710 })
 }
 
+module.exports.updateDevice = async function (obj) {
+  try {
+    if (obj.connect && clients[obj.ipaddress]) {
+      await updateZones(clients[obj.ipaddress], obj)
+    } else {
+      await connect(obj)
+    }
+  } catch (err) {
+    console.error(err)
+    const r = await Devices.updateOne({ _id: obj._id }, { $set: { connect: false } })
+  }
+}
+
+module.exports.onair = async function (obj) {
+  console.log(obj)
+  const params = { 
+    Zones: obj.channels, 
+    Description: obj.name,
+    MaxPageTime: 0,
+    Mode: 'live',
+    Station: 1,
+    Priority: 3,
+    Start: true
+  }
+  if (clients[obj.ipaddress]) {
+    const client = clients[obj.ipaddress]
+    console.log('onair')
+    const r = await client.send({ id: 1, method: 'PA.PageSubmit', params: params })
+    console.log(r)
+    pageIds[obj.ipaddress] = r.PageID
+    // if (r && r.PageID) {
+    //   pageIds[obj.ipaddress] = Number(r.PageID)
+    //   const rt = await client.send({ id: 4549, method: 'PA.PageStart', params: { PageID: r.PageID} })
+    //   // await client.send({ id: 1, method: 'PA.PageStop', params: r })
+    //   console.log(rt)
+    // } else {
+    //   return null
+    // }
+  }
+  else {
+    return null
+  }
+}
+
+module.exports.offair = async function (obj) {
+  try {
+    if (clients[obj.ipaddress]) {
+      const PageID = pageIds[obj.ipaddress]
+      const client = clients[obj.ipaddress]
+      // const r = await client.send({ id: 8047, method: 'PA.PageStop', params: { PageID: PageID } })
+      const r = await client.send(commands.setComponentControls('PA', [{
+        Name: 'cancel.all.commands',
+        Value: 1
+      }]))
+      console.log(r)
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
 // module.exports.createQsys = async (obj) => {
 //   const client = new QrcClient()
 //   client.socket.on('connect', async () => {
@@ -179,7 +255,7 @@ async function updateZones (client, obj) {
     }
   })
   const result = await Devices.updateOne({
-    _id: obj._id
+    ipaddress: obj.ipaddress
   }, {
     gain, mute, active,
     detail: status,

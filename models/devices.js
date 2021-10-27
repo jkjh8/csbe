@@ -22,6 +22,8 @@ const devicesSchema = new mongoose.Schema({
   auth: { type: Array },
   checked: { type: Boolean, default: false, required: true },
   status: { type: Boolean, default: false, required: true },
+  pageid: { type: Number },
+  connect: { type: Boolean },
   // timestamp
   failedAt: { type: Date }
 }, { timestamps: true })
