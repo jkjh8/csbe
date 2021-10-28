@@ -7,7 +7,7 @@ dotenv.config({ path: path.join(__dirname, '../../.env') })
 const JWTStrategy = require('passport-jwt').Strategy
 const LocalStrategy = require('passport-local').Strategy
 
-const Users = require('../../models/users')
+const Users = require('models/users')
 
 const getAccessToken = function (req) {
   if (req && req.cookies && req.cookies['accessToken']) {

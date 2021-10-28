@@ -27,14 +27,14 @@ exports.preview = async (req, res) => {
     const filename = `${uuidv4()}`
     const options = {
       mode: 'json',
-      pythonPath: 'python3',
+      pythonPath: '',
       pythonOptions: ['-u'],
       scriptPath: __dirname,
       args: ['make_file', text, tempPath, filename, rate, voiceId]
     }
     PythonShell.run('tts.py', options, function(err, result) {
       if (err) console.error(err)
-      console.log(result[0])
+      console.log(result)
       res.status(200).json(result[0])
     })
   } catch (err) {

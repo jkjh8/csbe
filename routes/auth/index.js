@@ -39,6 +39,7 @@ router.post('/register', async function (req, res) {
 })
 
 router.post('/login', function (req, res) {
+  console.log(req.body)
   passport.authenticate(
     'local',
     {
@@ -46,6 +47,7 @@ router.post('/login', function (req, res) {
     },
     async (err, user, info) => {
       try {
+        console.log(err, user, info)
         if (err) return res.status(403).json({ error: err })
         if (!user) return res.status(403).json(info)
 
