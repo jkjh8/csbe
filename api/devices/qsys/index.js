@@ -8,25 +8,25 @@ async function connect (obj) {
   const client = new QrcClient()
   client.on('connect', async () => {
     clients[obj.ipaddress] = client
-    const r = await Devices.updateOne({ _id: obj._id }, { $set: { connect: true, status: true } })
+    const r = await Devices.updateOne({ _id: obj._id }, { $set: { status: true } })
     console.log('connected device', r, obj.ipaddress)
     // console.log(clients)
   })
-  client.on('data', (data) => {
-    const rt = data.toString('utf8').replace(' ', '')
-    console.log(JSON.parse(rt))
-    if (rt.method === 'PA.PageStatus') {
-      console.log(rt)
-    }
-  })
+  // client.on('data', (data) => {
+  //   const rt = data.toString('utf8').replace(' ', '')
+  //   console.log(JSON.parse(rt))
+  //   if (rt.method === 'PA.PageStatus') {
+  //     console.log(rt)
+  //   }
+  // })
   client.on('error', async (e) => {
     clients[obj.ipaddress] = null
-    const r = await Devices.updateOne({ _id: obj._id }, { $set: { connect: false, status: false } })
+    const r = await Devices.updateOne({ _id: obj._id }, { $set: { status: false } })
     console.log('disconnect device on error', r, obj.ipaddress)
   })
   client.socket.on('timeout', async () => {
     clients[obj.ipaddress] = null
-    const r = await Devices.updateOne({ _id: obj._id }, { $set: { connect: false, status: false } })
+    const r = await Devices.updateOne({ _id: obj._id }, { $set: { status: false } })
     console.log('disconnect timeout device', r, obj.ipaddress)
   })
   client.connect({ host: obj.ipaddress, port: 1710 })
@@ -34,7 +34,7 @@ async function connect (obj) {
 
 module.exports.updateDevice = async function (obj) {
   try {
-    if (obj.connect && clients[obj.ipaddress]) {
+    if (obj.status && clients[obj.ipaddress]) {
       await updateZones(clients[obj.ipaddress], obj)
     } else {
       await connect(obj)
@@ -257,9 +257,11 @@ async function updateZones (client, obj) {
   const result = await Devices.updateOne({
     ipaddress: obj.ipaddress
   }, {
-    gain, mute, active,
-    detail: status,
-    status: true
+    $set: {
+      gain, mute, active,
+      detail: status,
+      status: true
+    } 
   })
   return result
 }
