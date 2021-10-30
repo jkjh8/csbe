@@ -1,9 +1,6 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
 const Devices = require('../../../models/devices')
-// const Barixes = require('../../../models/bak/barixes')
-
-
 
 async function http (address) {
   try {
@@ -45,7 +42,7 @@ module.exports.getBarix = async (obj) => {
     if (info) {
       switch (info.hardware.fwname) {
         case 'InstreamerKit':
-          updateInstreamer(obj, info)
+          await updateInstreamer(obj, info)
           break
         case 'StreamingClientKit':
           updateExtreamer(obj, info)
@@ -60,7 +57,7 @@ module.exports.getBarix = async (obj) => {
 }
 
 async function updateInstreamer (obj, info) {
-  const r = await Devices.updateOne({
+  return await Devices.updateOne({
     _id: obj._id
   }, {
     status: true,
@@ -101,7 +98,7 @@ async function updateInstreamer (obj, info) {
 }
 
 async function updateExtreamer (obj, info) {
-  const r = await Devices.updateOne({
+  return await Devices.updateOne({
     _id: obj._id
   }, {
     status: true,

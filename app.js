@@ -61,6 +61,7 @@ function makeMediaFolder(folder) {
 global.filesPath = path.join(__dirname, 'files')
 global.schedulePath = path.join(__dirname, 'schedules')
 global.tempPath = path.join(__dirname, 'temp')
+global.deviceStatus = {}
 
 makeMediaFolder(filesPath)
 makeMediaFolder(schedulePath)

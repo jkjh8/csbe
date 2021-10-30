@@ -4,10 +4,10 @@ const Devices = require('models/devices')
 
 module.exports.check = async (obj) => {
   try {
-    // let r = await Devices.findOne({ index: obj.index })
-    // if (r && r._id.toString() !== obj._id) return '인덱스가 중복되었습니다.'
-    // r = await Devices.findOne({ ipaddress: obj.ipaddress })
-    // if (r && r._id.toString() !== obj._id) return '아이피가 이미 존재 합니다.'
+    let r = await Devices.findOne({ index: obj.index })
+    if (r && r._id.toString() !== obj._id) return '인덱스가 중복되었습니다.'
+    r = await Devices.findOne({ ipaddress: obj.ipaddress })
+    if (r && r._id.toString() !== obj._id) return '아이피가 이미 존재 합니다.'
     // if (obj.mac) {
     //   r = await Devices.findOne({ mac: obj.mac })
     //   if (r && r._id.toString() !== obj._id) return '맥어드레스가 이미 존재 합니다.'
