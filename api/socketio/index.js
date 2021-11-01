@@ -1,5 +1,5 @@
 
-const fnLocations = require('./locations')
+const fnDevices = require('./devices')
 const fnBroadcast = require('./broadcast')
 
 exports = module.exports = function(app) {
@@ -10,7 +10,7 @@ exports = module.exports = function(app) {
       console.log('Socket io disconnect', socket.id)
     })
     socket.on('getLocations', async () => {
-      await fnLocations.get(socket)
+      await fnDevices.get(socket)
     })
 
     socket.on('broadcastStart', async (locate) => {

@@ -99,6 +99,7 @@ httpServer.listen(port, () => {
 // })
 const devices = require('./api/devices')
 devices.get()
+
 // require('./api/devices/checkBarix')
 // require('./api/return/status')
 // require('./api/devices/barix')
@@ -115,4 +116,5 @@ cron.schedule('*/10 * * * * *', () => {
   devices.get()
 })
 
+global.app = app
 module.exports = app

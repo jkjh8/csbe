@@ -25,6 +25,8 @@ const schedulesschema = new mongoose.Schema(
     selected: { type: Array },
     active: { type: Boolean },
     color: { type: String },
+    startChime: { type: Boolean },
+    endChime: { type: Boolean },
   },
   {
     timestamps: true

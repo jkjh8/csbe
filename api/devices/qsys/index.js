@@ -12,13 +12,15 @@ async function connect (obj) {
     console.log('connected device', r, obj.ipaddress)
     // console.log(clients)
   })
-  // client.on('data', (data) => {
-  //   const rt = data.toString('utf8').replace(' ', '')
-  //   console.log(JSON.parse(rt))
-  //   if (rt.method === 'PA.PageStatus') {
-  //     console.log(rt)
-  //   }
-  // })
+  client.socket.on('data', (rt) => {
+    let data = rt.toString()
+    if (data.includes('PA.PageStatus')) {
+      console.log(data.indexOf('}}'))
+      data = data.slice(0, data.indexOf('}}') + 2)
+      console.log(data)
+      app.io.emit('onair', JSON.parse(data))
+    }
+  })
   client.on('error', async (e) => {
     clients[obj.ipaddress] = null
     const r = await Devices.updateOne({ _id: obj._id }, { $set: { status: false } })

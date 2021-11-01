@@ -11,7 +11,6 @@ router.use('/broadcast', require('./broadcast'))
 router.use('/eventlog', require('./eventlog'))
 // router.use('/sensors', require('./devices/barix'))
 router.use('/devices', require('./devices'))
-router.use('/locations', require('./locations'))
 router.use('/hardware', require('./hardware'))
 router.use('/admin', require('./admin'))
 
