@@ -98,23 +98,19 @@ httpServer.listen(port, () => {
 //   console.log(`App listening at https://localhost:${port}`)
 // })
 const devices = require('./api/devices')
-devices.get()
 
-// require('./api/devices/checkBarix')
-// require('./api/return/status')
-// require('./api/devices/barix')
-// require('./api/devices/qsys')
+devices.get(app.io)
 
-// const Log = require('./models/eventlog')
-// const Hangul = require('hangul-js')
-// const searchStr = Hangul.disassembleToString('서')
-// Log.find({ search: null }, function (err, res) {
-//   console.log(res)
-// })
-
-cron.schedule('*/10 * * * * *', () => {
-  devices.get()
+cron.schedule('*/30 * * * * *', () => {
+  console.log('get master')
+  devices.getMasters(app.io)
 })
+
+cron.schedule('*/5 * * * *', () => {
+  console.log('get slave')
+  devices.getSlaves(app.io)
+})
+
 
 global.app = app
 module.exports = app

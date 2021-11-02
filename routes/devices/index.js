@@ -10,15 +10,7 @@ const { getBarix } = require('api/devices/barix')
 
 router.get('/', async function (req, res) {
   try {
-    const { id } = req.query
-
-    console.log(id)
-
-    const search = {}
-    if (id && id !== 'undefined') {
-      search['parent_id'] = id
-    }
-    const r = await Devices.find(search).sort({ _id: 1, channel: 1 })
+    const r = await Devices.find().sort({ _id: 1, channel: 1 })
     res.status(200).json({ data: r })
   } catch (err) {
     res.status(500).json({ status: 'error', data: err })
@@ -69,12 +61,12 @@ router.put('/', async function (req, res) {
     if (checkMessage) return res.status(500).json({ message: checkMessage })
     const r = await Devices.updateOne({ _id: info._id }, { $set: info })
     res.status(200).json({ data: r })
-    if (info.devicetype === 'QSys') {
-      await createQsys(info)
-    }
-    if (info.devicetype === 'Barix') {
-      await getBarix(info)
-    }
+    // if (info.devicetype === 'QSys') {
+    //   await createQsys(info)
+    // }
+    // if (info.devicetype === 'Barix') {
+    //   await getBarix(info)
+    // }
   } catch (err) {
     res
       .status(500)

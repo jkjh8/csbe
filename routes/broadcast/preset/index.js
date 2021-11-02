@@ -21,6 +21,7 @@ router.get('/', async function (req, res) {
 
 router.post('/', async (req, res) => {
   try {
+    console.log(req.body)
     const newPreset = new ZonePreset(req.body)
     const r = await newPreset.save()
     res.status(200).json({ r })
@@ -28,6 +29,16 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: err })
   }
 
+})
+
+router.put('/', async (req, res) => {
+  try {
+    const preset = req.body
+    const r = await ZonePreset.updateOne({ _id: preset._id }, { $set: preset })
+    res.status(200).json(r)
+  } catch (err) {
+    res.status(500).json({ error: err })
+  }
 })
 
 router.get('/delete', async (req, res) => {

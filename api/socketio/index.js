@@ -1,5 +1,5 @@
 
-const fnDevices = require('./devices')
+const fnDevices = require('api/devices')
 const fnBroadcast = require('./broadcast')
 
 exports = module.exports = function(app) {
@@ -9,21 +9,23 @@ exports = module.exports = function(app) {
     socket.on('disconnect', () => {
       console.log('Socket io disconnect', socket.id)
     })
-    socket.on('getLocations', async () => {
+    socket.on('getDevices', async () => {
+      console.log('get Devices')
       await fnDevices.get(socket)
     })
 
     socket.on('broadcastStart', async (locate) => {
       // console.log('Broadcast', obj.channels)
       await fnBroadcast.onair(locate)
-      setTimeout(() => {
-        fnLocations.get(app.io)
-      }, 1000)
       console.log('end onair')
+      const timer = setInterval(async () => { await fnDevices.getMasters(app.io) }, 1000)
+      setTimeout(() => { clearInterval(timer) }, 5000)
     })
 
     socket.on('broadcastEnd', async (locate) => {
       await fnBroadcast.offair(locate)
+      const timer = setInterval(async () => { await fnDevices.getMasters(app.io) }, 1000)
+      setTimeout(() => { clearInterval(timer) }, 5000)
     })
   })
 }
