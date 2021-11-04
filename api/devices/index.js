@@ -7,31 +7,35 @@ module.exports.get = async (io) => {
   const devices = await Devices.find()
   for (let i = 0; i < devices.length; i++) {
     if (devices[i].devicetype === 'Q-Sys') {
-      await qsys.updateDevice(devices[i])
+      await qsys.getPA(devices[i])
     } else if (devices[i].devicetype === 'Barix') {
       await barix.getBarix(devices[i])
     }
   }
-  io.emit('devices', await Devices.find())
+  setTimeout(async () => {
+    io.emit('devices', await Devices.find())
+  }, 1000)
 }
 
 module.exports.getMasters = async (io) => {
   const masters = await Devices.find({ mode: 'Master' })
   for (let i = 0; i < masters.length; i++) {
     if (masters[i].devicetype === 'Q-Sys') {
-      await qsys.updateDevice(masters[i])
+      await qsys.getPA(masters[i])
     }
   }
-  io.emit('devices', await Devices.find())
+  setTimeout(async () => {
+    io.emit('devices', await Devices.find())
+  }, 1000)
 }
 
-module.exports.getSlaves = async () => {
-  const slaves = await Devices.find({ mode: 'Slave' })
-  slaves.forEach(async (device) => {
+module.exports.setStatus = async () => {
+  const devices = await Devices.find()
+  devices.forEach(async (device) => {
     if (device.devicetype === 'Barix') {
       await barix.getBarix(device)
     } else if (device.devicetype === 'Q-Sys') {
-      await qsys.updateDevice(device)
+      await qsys.getStatus(device)
     }
   })
 }

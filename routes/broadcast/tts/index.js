@@ -7,7 +7,7 @@ const path = require('path')
 const fs = require('fs')
 const request = require('request')
 
-const TTS = require('models/ttsText')
+const TTS = require('models/ttsTexts')
 const ttsPython = require('api/py')
 
 router.post('/preview', ttsPython.preview)
@@ -16,7 +16,7 @@ router.get('/voices', ttsPython.getVoices)
 router.get('/list', async function (req, res) {
   try {
     const { user_id } = req.query
-    const search = [{ type: 'global' }]
+    const search = [{ type: 'Global' }]
     if (user_id && user_id !== 'undefined') {
       search.push({ user_id: user_id })
     }
@@ -32,7 +32,8 @@ router.post('/list', async (req, res) => {
   try {
     const newMessage = new TTS(req.body)
     const r = await newMessage.save()
-    res.status(200).json({ r })
+    console.log(r)
+    res.status(200).json(r)
   } catch (err) {
     res
       .status(500)
@@ -51,7 +52,7 @@ router.put('/list', async (req, res) => {
         $set: info
       }
     )
-    res.status(200).json({ r })
+    res.status(200).json(r)
   } catch (err) {
     res
       .status(500)

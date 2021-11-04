@@ -108,7 +108,7 @@ cron.schedule('*/30 * * * * *', () => {
 
 cron.schedule('*/5 * * * *', () => {
   console.log('get slave')
-  devices.getSlaves(app.io)
+  devices.getStatus(app.io)
 })
 
 

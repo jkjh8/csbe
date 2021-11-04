@@ -8,7 +8,7 @@ exports.onair = async (arr) => {
       ...arr.channels[i],
       name: arr.name
     })
-    await qsys.updateDevice(arr.channels[i])
+    await qsys.getPA(arr.channels[i])
   }
   return
 }
