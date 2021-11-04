@@ -197,6 +197,30 @@ module.exports.forceCancel = async function (obj) {
   }
 }
 
+module.exports.changeVol = async function (obj) {
+  try {
+    if (!clients[obj.ipaddress]) { await connect(obj) }
+    const command = JSON.stringify({
+      jsonrpc: '2.0',
+      id: `setvol,${obj.ipaddress}`,
+      method: 'Component.Set',
+      params: {
+        Name: 'PA',
+        Controls: [
+          {
+            Name: `zone.${obj.channel}.gain`,
+            Value: obj.vol
+          }
+        ]
+      }
+    })
+    console.log(command)
+    clients[obj.ipaddress].write(command + '\0')
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 // returns
 async function updateStatus(obj) {
   try {

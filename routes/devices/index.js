@@ -5,7 +5,7 @@ const router = express.Router()
 
 const Devices = require('models/devices')
 const { check } = require('./functions')
-const { createQsys, editQsys } = require('api/devices/qsys')
+const qsys = require('api/devices/qsys')
 const { getBarix } = require('api/devices/barix')
 
 router.get('/', async function (req, res) {
@@ -39,8 +39,8 @@ router.post('/', async function (req, res) {
     const device = new Devices(info)
     const r = await device.save()
     res.status(200).json({ doc: r })
-    if (r.type === 'QSys') {
-      await createQsys(r)
+    if (r.type === 'Q-Sys') {
+      await qsys.getStatus(r)
     }
     if (r.type === 'Barix') {
       await getBarix(r)
@@ -103,6 +103,19 @@ router.get('/checked', async (req, res) => {
     res
       .status(500)
       .json({ error: err, message: '알 수 없는 오류가 발생하였습니다.' })
+  }
+})
+
+router.post('/changeVol', async (req, res) => {
+  try {
+    qsys.changeVol(req.body)
+    res.status(200).json(req.body)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({
+      error: err,
+      message: '알 수 없는 오류가 발생하였습니다.'
+    })
   }
 })
 
