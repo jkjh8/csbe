@@ -8,6 +8,8 @@ const { check } = require('./functions')
 const qsys = require('api/devices/qsys')
 const { getBarix } = require('api/devices/barix')
 
+router.use('/qsys', require('./qsys'))
+
 router.get('/', async function (req, res) {
   try {
     const r = await Devices.find().sort({ _id: 1, channel: 1 })
