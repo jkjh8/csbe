@@ -24,17 +24,19 @@ exports.makeFolder = async (req, res) => {
 }
 
 exports.upload = async (req, res) => {
-  let file
+  let { files, folder } = req.body
+  let localBasePath
   let uploadPath
+  if (folder === 'media') { localBasePath = filesPath }
 
   console.log(req.body)
 
-  if(!req.files || Object.keys(req.files).length === 0) {
+  if(!files || Object.keys(files).length === 0) {
     return res.status(400).send('업로드 할 파일이 없습니다.')
   }
-  file = req.files.files
+  let file = files.files
 
-  uploadPath = path.join(filesPath, req.body.path, file.name)
+  uploadPath = path.join(localBasePath, req.body.path, file.name)
 
   file.mv(uploadPath, function(err) {
     if(err) return res.status(500).send('업로드 중 에러가 발생하였습니다.')
@@ -65,9 +67,12 @@ exports.del = async (req, res) => {
 }
 
 exports.getFilesInPath = async (req, res) => {
+  const { folder } = req.body
+  let localBasePath
+  if (folder === 'media') { localBasePath = filesPath}
   try {
     const rt = []
-    const reqPath = path.join(filesPath, req.body.path.join('/'))
+    const reqPath = path.join(localBasePath, req.body.path.join('/'))
     console.log(reqPath)
     const files = await fs.readdirSync(reqPath, { withFileTypes: true })
     for (let i = 0; i < files.length; i++) {
@@ -75,7 +80,7 @@ exports.getFilesInPath = async (req, res) => {
          rt.push({
            idx: i,
            dir: true,
-           base: 'media',
+           base: folder,
            type: 'directory',
            name: files[i].name,
            src: req.body.path.join('/'),
@@ -97,7 +102,7 @@ exports.getFilesInPath = async (req, res) => {
         rt.push({
           idx: i,
           dir: false,
-          base: 'media',
+          base: folder,
           type: 'audio',
           name: files[i].name,
           src: req.body.path.join('/'),
@@ -118,7 +123,7 @@ exports.getFilesInPath = async (req, res) => {
         rt.push({
           idx: i,
           dir: false,
-          base: 'media',
+          base: folder,
           type: 'video',
           name: files[i].name,
           src: req.body.path.join('/'),
