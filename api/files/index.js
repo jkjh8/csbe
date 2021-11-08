@@ -67,9 +67,18 @@ exports.del = async (req, res) => {
 }
 
 exports.getFilesInPath = async (req, res) => {
+  console.log(req.body)
   const { folder } = req.body
   let localBasePath
-  if (folder === 'media') { localBasePath = filesPath}
+  if (folder === 'media') {
+    localBasePath = filesPath
+  } else if (folder === 'temp') {
+    localBasePath = tempPath
+  } else if (folder === 'schedule') {
+    localBasePath = schedulePath
+  } else {
+    localBasePath = ''
+  }
   try {
     const rt = []
     const reqPath = path.join(localBasePath, req.body.path.join('/'))
@@ -89,52 +98,65 @@ exports.getFilesInPath = async (req, res) => {
        }
     }
     for (let i = 0; i < files.length; i++) {
-      if (new RegExp(/.wav|.mp3/g).test(files[i].name)) {
-        // let fileInfo = {}
-        // fileInfo = await getFileInfo(f[i].name, reqPath)
-        // fileInfo['idx'] = i
-        // fileInfo['base'] = 'media'
-        // fileInfo['src'] = req.query.link
-        // fileInfo['dir'] = false
-        // fileInfo['name'] = f[i].name
-        // fileInfo['type'] = 'audio'
-        // fileInfo['fsrc'] = reqPath
-        rt.push({
-          idx: i,
-          dir: false,
-          base: folder,
-          type: 'audio',
-          name: files[i].name,
-          src: req.body.path.join('/'),
-          fsrc: path.join(reqPath, files[i].name),
-          size: fs.statSync(path.join(reqPath, files[i].name)).size
-        })
-      } else if (new RegExp(/.mp4|.mkv|.mov/g).test(files[i].name)) {
-        // let fileInfo = {}
-        // fileInfo = await getFileInfo(f[i].name, reqPath)
-        // fileInfo['idx'] = i
-        // fileInfo['base'] = 'media'
-        // fileInfo['src'] = req.query.link
-        // fileInfo['dir'] = false
-        // fileInfo['name'] = f[i].name
-        // fileInfo['type'] = 'video'
-        // fileInfo['fsrc'] = reqPath
-        // files.push(fileInfo)
-        rt.push({
-          idx: i,
-          dir: false,
-          base: folder,
-          type: 'video',
-          name: files[i].name,
-          src: req.body.path.join('/'),
-          fsrc: path.join(reqPath, files[i].name),
-          size: fs.statSync(path.join(reqPath, files[i].name)).size
-        })
+      if (!files[i].isDirectory()) {
 
-    }
+        if (new RegExp(/.wav|.mp3/g).test(files[i].name)) {
+          // let fileInfo = {}
+          // fileInfo = await getFileInfo(f[i].name, reqPath)
+          // fileInfo['idx'] = i
+          // fileInfo['base'] = 'media'
+          // fileInfo['src'] = req.query.link
+          // fileInfo['dir'] = false
+          // fileInfo['name'] = f[i].name
+          // fileInfo['type'] = 'audio'
+          // fileInfo['fsrc'] = reqPath
+          rt.push({
+            idx: i,
+            dir: false,
+            base: folder,
+            type: 'audio',
+            name: files[i].name,
+            src: req.body.path.join('/'),
+            fsrc: path.join(reqPath, files[i].name),
+            size: fs.statSync(path.join(reqPath, files[i].name)).size
+          })
+        } else if (new RegExp(/.mp4|.mkv|.mov/g).test(files[i].name)) {
+          // let fileInfo = {}
+          // fileInfo = await getFileInfo(f[i].name, reqPath)
+          // fileInfo['idx'] = i
+          // fileInfo['base'] = 'media'
+          // fileInfo['src'] = req.query.link
+          // fileInfo['dir'] = false
+          // fileInfo['name'] = f[i].name
+          // fileInfo['type'] = 'video'
+          // fileInfo['fsrc'] = reqPath
+          // files.push(fileInfo)
+          rt.push({
+            idx: i,
+            dir: false,
+            base: folder,
+            type: 'video',
+            name: files[i].name,
+            src: req.body.path.join('/'),
+            fsrc: path.join(reqPath, files[i].name),
+            size: fs.statSync(path.join(reqPath, files[i].name)).size
+          })
+        } else {
+          rt.push({
+            idx: i,
+            dir: false,
+            base: folder,
+            type: 'etc',
+            name: files[i].name,
+            src: req.body.path.join('/'),
+            fsrc: path.join(reqPath, files[i].name),
+            size: fs.statSync(path.join(reqPath, files[i].name)).size
+          })
+        }
+      }
     }
     res.status(200).json({
-      path: removeBlank(reqPath.replace(filesPath, '').split(path.sep)),
+      path: removeBlank(reqPath.replace(localBasePath, '').split(path.sep)),
       files: rt
     })
   } catch (err) {
