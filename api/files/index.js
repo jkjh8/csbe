@@ -24,7 +24,9 @@ exports.makeFolder = async (req, res) => {
 }
 
 exports.upload = async (req, res) => {
-  let { files, folder } = req.body
+  console.log(req.body)
+  let { folder } = req.body
+  let files = req.files
   let localBasePath
   let uploadPath
   if (folder === 'media') { localBasePath = filesPath }
@@ -76,6 +78,8 @@ exports.getFilesInPath = async (req, res) => {
     localBasePath = tempPath
   } else if (folder === 'schedule') {
     localBasePath = schedulePath
+  } else if (folder === 'sound') {
+    localBasePath = soundPath
   } else {
     localBasePath = ''
   }

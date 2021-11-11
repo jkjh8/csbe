@@ -4,11 +4,14 @@ const path = require('path')
 const fs = require('fs')
 const cron = require('node-cron')
 const express = require('express')
+const dgram = require('dgram')
+
 const app = express()
 const http = require('http')
 const https = require('https')
 const port = 3000
 const sslPort = 3443
+
 
 // keys
 // const privateKey = fs.readFileSync('./keys/private.key', 'utf8')
@@ -59,11 +62,13 @@ function makeMediaFolder(folder) {
 }
 
 global.filesPath = path.join(__dirname, 'files')
+global.soundPath = path.join(__dirname, 'sound')
 global.schedulePath = path.join(__dirname, 'schedules')
 global.tempPath = path.join(__dirname, 'temp')
 global.deviceStatus = {}
 
 makeMediaFolder(filesPath)
+makeMediaFolder(soundPath)
 makeMediaFolder(schedulePath)
 makeMediaFolder(tempPath)
 
@@ -72,6 +77,7 @@ makeMediaFolder(path.join(filesPath, 'home'))
 app.use('/media', express.static(filesPath))
 app.use('/schedule', express.static(schedulePath))
 app.use('/temp', express.static(tempPath))
+app.use('/sound', express.static(soundPath))
 
 //load router
 app.get('/', (req, res, next) => {
@@ -89,6 +95,12 @@ app.io = require('socket.io')(httpServer, {
   }
 })
 const socketIOHandler = require('./api/socketio')(app)
+
+// multicast server
+const multicastAddress = '230.185.192.12'
+app.server = dgram.createSocket('udp4')
+const multicastIoHandler = require('./api/multicast')(app)
+// app.server.bind(12340)
 
 
 httpServer.listen(port, () => {

@@ -121,4 +121,17 @@ router.post('/changeVol', async (req, res) => {
   }
 })
 
+router.get('/cancel', async(req, res) => {
+  try {
+    await qsys.cancel({ ipaddress: req.query.ipaddress })
+    res.sendStatus(200)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({
+      error:err,
+      message: '알 수 없는 오류가 발생하였습니다.'
+    })
+  }
+})
+
 module.exports = router

@@ -14,7 +14,7 @@ def make_file(command):
         fileWav = filePath + '/' + filename + '.wav'
         fileMp3 = filePath + '/' + filename + '.mp3'
         
-        engine.setProperty('rate', rate)
+        engine.setProperty('rate', int(rate))
         engine.setProperty('voice', voice)
         # engine.say(text)
         # engine.runAndWait()
@@ -24,7 +24,7 @@ def make_file(command):
         engine.save_to_file(text, filePath + '/' + filename + '.wav')
         engine.runAndWait()
         subprocess.call(["ffmpeg", "-y", "-i", fileWav, fileMp3])
-        print(json.dumps({"file": fileMp3, "text": text, "name": filename+'.mp3', "base": "temp", "type": "audio"}))
+        print(json.dumps({"file": fileMp3, "text": text, "name": filename+'.mp3', "base": "temp", "type": "audio","rate":rate}))
     except Exception:
         print(json.dumps({ 'error': Exception }))
 

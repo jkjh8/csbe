@@ -68,6 +68,9 @@ async function parse (obj, device) {
     switch (obj.method) {
       default:
         console.log('return no id - ', obj)
+        if (obj.method === 'PA.PageStatus') {
+          app.io.emit('broadcast', obj)
+        }
     }
   }
 }

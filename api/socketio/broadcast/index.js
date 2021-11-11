@@ -18,3 +18,7 @@ exports.offair = async (arr) => {
     qsys.offair(obj)
   })
 }
+
+exports.cancel = async (obj) => {
+  qsys.cancel(obj)
+}

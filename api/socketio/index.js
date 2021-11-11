@@ -1,6 +1,7 @@
 
 const fnDevices = require('api/devices')
 const fnBroadcast = require('./broadcast')
+const multicastAddress = '230.185.192.12'
 
 let timer = null
 
@@ -19,7 +20,15 @@ exports = module.exports = function(app) {
     socket.on('broadcastStart', async (locate) => {
       // console.log('Broadcast', obj.channels)
       await fnBroadcast.onair(locate)
-      console.log('end onair')
+      const msg = new Buffer.from(JSON.stringify({
+        playerId: 1,
+        command: 'play',
+        file: locate.file,
+        startChime: locate.startChime,
+        endChime: locate.endChime,
+        vol: locate.vol
+      }))
+      app.server.send(msg, 12341, multicastAddress)
       if (!timer) {
         timer = setInterval(async () => { await fnDevices.getMasters(app.io) }, 1000)
         setTimeout(() => {
@@ -31,6 +40,22 @@ exports = module.exports = function(app) {
 
     socket.on('broadcastEnd', async (locate) => {
       await fnBroadcast.offair(locate)
+      const msg = new Buffer.from(JSON.stringify({
+        playerId: 1,
+        command: 'stop'
+      }))
+      app.server.send(msg, 12341, multicastAddress)
+      if (!timer) {
+        timer = setInterval(async () => { await fnDevices.getMasters(app.io) }, 1000)
+        setTimeout(() => {
+          clearInterval(timer)
+          timer = null
+        }, 5000)
+      }
+    })
+
+    socket.on('broadcastcancel', async (locate) => {
+      await fnBroadcast.cancel(locate)
       if (!timer) {
         timer = setInterval(async () => { await fnDevices.getMasters(app.io) }, 1000)
         setTimeout(() => {

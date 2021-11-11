@@ -11,6 +11,7 @@ exports.preview = async (req, res) => {
   const voiceId = req.body.voice.id
   const rate = req.body.rate
   try {
+    console.log('tts data ', req.body)
     // 카카오 TTS
     // const kakaooptions = {
     //   uri: "https://kakaoi-newtone-openapi.kakao.com/v1/synthesize",
