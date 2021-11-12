@@ -1,3 +1,4 @@
+"use strict";
 const QrcClient = require('qsys-qrc-client').default
 const { commands } = require('qsys-qrc-client')
 const net = require('net')
@@ -5,6 +6,10 @@ const net = require('net')
 const Devices = require('models/devices')
 const clients = {}
 const pageId = {}
+
+const split2 = require('split2')
+const through2 = require('through2')
+const pump = require("pump")
 
 async function closeSocket (obj) {
   // clients[obj.ipaddress].destroy()
@@ -14,31 +19,67 @@ async function closeSocket (obj) {
   // setTimeout(async () => { await connect(obj) }, 5000)
 }
 
+const nullJsonDecoder = () => split2('\u0000', JSON.parse, { trailing: true })
+let finished = false;
+const errors = [];
+const finish = (err) => {
+    if (err && !errors.includes(err)) {
+        errors.push(err);
+        this.emit('error', err);
+    }
+    if (finished) {
+        return;
+    }
+    finished = true;
+    this.emit('finish', err);
+}
+
+const log = (prefix = '', debug = false) => through2.obj(function (chunk, enc, cb) {
+  // if (debug) {
+  //     console.log(prefix, utils_1.inspect(chunk));
+  // }
+  this.push(chunk, enc);
+  cb()
+})
+
 async function connect (obj) {
   let buffer = ''
+  let readStream = log('received: ')
   const client = net.connect({ port: 1710, host: obj.ipaddress }, () => {
+    clients[obj.ipaddress] = client
     console.log('connected ', obj.ipaddress)
   })
-
+  pump(client, nullJsonDecoder(), readStream, finish)
+  readStream.on('data', (data) => {
+    console.log('rt', data)
+    parse(data)
+  })
+  
   client.on('data', async (data) => {
-    try {
-      if (data[data.length - 1] === 0x00) {
-        data = data.toString('utf8')
-        buffer += data
-        await parse(JSON.parse(buffer.substring(0, buffer.length - 1)), obj)
-        buffer = ''
-      } else {
-        data = data.toString('utf8')
-        buffer += data
-      }
-    } catch (err) {
-      buffer = ''
-      console.error(err)
-    }
+
+    // try {
+    //   if (data.result) {
+    //     console.log('data result')
+    //   }
+    //   if (data[data.length - 1] === 0x00) {
+    //     data = data.toString('utf8')
+    //     buffer += data
+    //     await parse(JSON.parse(buffer.substring(0, buffer.length - 1)), obj)
+    //     buffer = ''
+    //   } else {
+    //     data = data.toString('utf8')
+    //     buffer += data
+    //   }
+    // } catch (err) {
+    //   buffer = ''
+    //   console.error(err)
+    // }
   })
 
+  client.readStream.on('data')
+
   client.on('connect', async () => {
-    buffer = ''
+    console.log('connect')
     clients[obj.ipaddress] = client
     await Devices.updateOne({ ipaddress: obj.ipaddress }, { $set: { status: true } })
   })

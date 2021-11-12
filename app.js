@@ -113,7 +113,7 @@ const schedule = require('./api/schedule')
 
 devices.get(app.io)
 
-cron.schedule('15,45 * * * * *', () => {
+cron.schedule('5,15,45,55 * * * * *', () => {
   console.log('get master')
   devices.getMasters(app.io)
 })
