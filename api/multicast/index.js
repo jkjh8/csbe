@@ -1,4 +1,5 @@
 const multicastAddress = '230.185.192.12'
+const broadcast = require('api/broadcast')
 
 exports = module.exports = function(app) {
   app.server.on('listening', () => {
@@ -7,7 +8,12 @@ exports = module.exports = function(app) {
 
   app.server.on('message', (msg) => {
     try {
-      app.io.emit('multicast', JSON.parse(msg))
+      const message = JSON.parse(msg)
+      if (message.command === 'end') {
+        console.log(message, app.broadcast)
+        broadcast.offair(app.broadcast)
+      }
+      app.io.emit('multicast', message)
     } catch (err) {
       console.error('multicast server recv error - ', err)
       console.log(msg)

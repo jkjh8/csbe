@@ -11,8 +11,6 @@ const http = require('http')
 const https = require('https')
 const port = 3000
 const sslPort = 3443
-
-
 // keys
 // const privateKey = fs.readFileSync('./keys/private.key', 'utf8')
 // const cerificate = fs.readFileSync('./keys/mediaserver.crt', 'utf8')
@@ -111,9 +109,11 @@ httpServer.listen(port, () => {
 // })
 const devices = require('./api/devices')
 
+const schedule = require('./api/schedule')
+
 devices.get(app.io)
 
-cron.schedule('*/30 * * * * *', () => {
+cron.schedule('15,45 * * * * *', () => {
   console.log('get master')
   devices.getMasters(app.io)
 })
@@ -123,6 +123,11 @@ cron.schedule('*/5 * * * *', () => {
   devices.getStatus(app.io)
 })
 
+cron.schedule('0 * * * * *', () => {
+  console.log('schedule')
+  schedule.checkSchedule()
+})
 
+app.broadcast = null
 global.app = app
 module.exports = app

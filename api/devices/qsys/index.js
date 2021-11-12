@@ -60,14 +60,14 @@ async function parse (obj, device) {
     } else if (obj.id.indexOf('cancel') > -1) {
       await updatePaCancel(obj)
     } else if (obj.id.indexOf('force') > -1) {
-      await forceCancel(obj)
+      await console.log(obj)
     } else if (obj.id.indexOf('status') > -1) {
       await updateStatus(obj)
     }
   } else {
     switch (obj.method) {
       default:
-        console.log('return no id - ', obj)
+        //console.log('return no id - ', obj)
         if (obj.method === 'PA.PageStatus') {
           app.io.emit('broadcast', obj)
         }
@@ -135,27 +135,31 @@ module.exports.onair = async function (obj) {
 module.exports.offair = async function (obj) {
   try {
     if (!clients[obj.ipaddress]) { await connect(obj) }
-    const command = JSON.stringify({
-      jsonrpc: '2.0',
-      id: `offair,${obj.ipaddress}`,
-      method: 'PA.PageStop',
-      params: { PageID: pageId[obj.ipaddress] }
-    })
-    clients[obj.ipaddress].write(command + '\0')
-  } catch (err) {
-    console.error(err)
-  }
-}
-
-module.exports.cancel = async function (obj) {
-  try {
-    if (!clients[obj.ipaddress]) { await connect(obj) }
-    const command = JSON.stringify({
-      jsonrpc: '2.0',
-      id: `cancel,${obj.ipaddress}`,
-      method: 'PA.PageCancel',
-      params: { PageID: pageId[obj.ipaddress] }
-    })
+    let command
+    if (pageId[obj.ipaddress]) {
+      command = JSON.stringify({
+        jsonrpc: '2.0',
+        id: `offair,${obj.ipaddress}`,
+        method: 'PA.PageStop',
+        params: { PageID: pageId[obj.ipaddress] }
+      })
+    } else {
+      command = JSON.stringify({
+        jsonrpc: '2.0',
+        id: `force,${obj.ipaddress}`,
+        method: 'Component.Set',
+        params: {
+          Name: 'PA',
+          Controls: [
+            {
+              Name: 'cancel.all.commands',
+              Value: 1
+            }
+          ]
+        }
+      })
+    }
+    console.log('offair', command)
     clients[obj.ipaddress].write(command + '\0')
   } catch (err) {
     console.error(err)
@@ -272,10 +276,6 @@ function updateOffair(obj) {
 }
 
 function updatePaCancel(obj) {
-  console.log(obj)
-}
-
-function forceCancel(obj) {
   console.log(obj)
 }
 

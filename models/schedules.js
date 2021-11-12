@@ -21,7 +21,7 @@ const schedulesschema = new mongoose.Schema(
     volume: { type: Number },
     description: { type: String },
     scheduleFile: { type: Object },
-    zones: { type: Array },
+    nodes: { type: Array },
     selected: { type: Array },
     active: { type: Boolean },
     color: { type: String },

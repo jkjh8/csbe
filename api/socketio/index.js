@@ -1,6 +1,6 @@
 
 const fnDevices = require('api/devices')
-const fnBroadcast = require('./broadcast')
+const broadcast = require('api/broadcast')
 const multicastAddress = '230.185.192.12'
 
 let timer = null
@@ -19,7 +19,7 @@ exports = module.exports = function(app) {
 
     socket.on('broadcastStart', async (locate) => {
       // console.log('Broadcast', obj.channels)
-      await fnBroadcast.onair(locate)
+      await broadcast.onair(locate)
       const msg = new Buffer.from(JSON.stringify({
         playerId: 1,
         command: 'play',
@@ -39,7 +39,7 @@ exports = module.exports = function(app) {
     })
 
     socket.on('broadcastEnd', async (locate) => {
-      await fnBroadcast.offair(locate)
+      await broadcast.offair(locate)
       const msg = new Buffer.from(JSON.stringify({
         playerId: 1,
         command: 'stop'
@@ -55,7 +55,7 @@ exports = module.exports = function(app) {
     })
 
     socket.on('broadcastcancel', async (locate) => {
-      await fnBroadcast.cancel(locate)
+      await broadcast.cancel(locate)
       if (!timer) {
         timer = setInterval(async () => { await fnDevices.getMasters(app.io) }, 1000)
         setTimeout(() => {
